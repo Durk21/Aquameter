@@ -16,11 +16,11 @@ it("allows an admin to set a technician''s zone", function () {
 
     $zone = config("utility.zones")[0];
 
-    $response = $this->actingAs($admin)->patch("/admin/technicians/{$technician->id}/zone", [
+    $response = $this->actingAs($admin)->patch("/admin/staff/{$technician->id}/zone", [
         "zone" => $zone,
     ]);
 
-    $response->assertRedirect(route("admin.technicians.index"));
+    $response->assertRedirect(route("admin.staff.index"));
     expect($technician->fresh()->zone)->toBe($zone);
 });
 
@@ -28,7 +28,7 @@ it("prevents a technician from setting their own zone", function () {
     $technician = User::factory()->create();
     $technician->assignRole(config("roles.technician"));
 
-    $response = $this->actingAs($technician)->patch("/admin/technicians/{$technician->id}/zone", [
+    $response = $this->actingAs($technician)->patch("/admin/staff/{$technician->id}/zone", [
         "zone" => config("utility.zones")[0],
     ]);
 

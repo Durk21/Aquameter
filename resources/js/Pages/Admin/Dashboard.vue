@@ -42,10 +42,10 @@ defineProps({
                     Bills
                 </Link>
                 <Link
-                    :href="route('admin.technicians.index')"
+                    :href="route('admin.staff.index')"
                     class="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold border border-ocean-300 text-ocean-700 hover:bg-ocean-50"
                 >
-                    Technicians
+                    Staff
                 </Link>
                 <Link
                     :href="route('admin.meters.create')"

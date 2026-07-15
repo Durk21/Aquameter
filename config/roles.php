@@ -21,4 +21,18 @@ return [
         "admin",
         "management",
     ],
+
+    /*
+    |--------------------------------------------------------------------
+    | Staff Roles
+    |--------------------------------------------------------------------
+    | Roles an admin may assign when creating a staff account. Excludes
+    | "customer" — customers only ever come from self-registration.
+    */
+
+    "staff" => [
+        "admin",
+        "technician",
+        "management",
+    ],
 ];

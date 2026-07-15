@@ -11,7 +11,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PhotoController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServiceRequestController;
-use App\Http\Controllers\TechnicianController;
+use App\Http\Controllers\StaffController;
 use App\Http\Controllers\WorkOrderController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -103,8 +103,10 @@ Route::middleware(["auth", "verified", "role:admin"])->prefix("admin")->name("ad
     Route::patch("/work-orders/{workOrder}/cancel", [WorkOrderController::class, "cancel"])->name("work-orders.cancel");
     Route::patch("/work-orders/{workOrder}/resolve-dispute", [WorkOrderController::class, "resolveDispute"])->name("work-orders.resolve-dispute");
 
-    Route::get("/technicians", [TechnicianController::class, "index"])->name("technicians.index");
-    Route::patch("/technicians/{technician}/zone", [TechnicianController::class, "updateZone"])->name("technicians.update-zone");
+    Route::get("/staff", [StaffController::class, "index"])->name("staff.index");
+    Route::get("/staff/create", [StaffController::class, "create"])->name("staff.create");
+    Route::post("/staff", [StaffController::class, "store"])->name("staff.store");
+    Route::patch("/staff/{staff}/zone", [StaffController::class, "updateZone"])->name("staff.update-zone");
 });
 
 Route::middleware(["auth", "verified", "role:management"])->prefix("management")->name("management.")->group(function () {
