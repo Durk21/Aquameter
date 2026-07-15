@@ -62,6 +62,14 @@ class WorkOrderStatusUpdated extends Notification
                 && $this->workOrder->status === WorkOrderStatus::Completed
                 => "Your water service has been disconnected due to an unpaid balance. Settle your balance to begin reconnection.",
 
+            in_array($this->workOrder->type, [WorkOrderType::LeakRepair, WorkOrderType::ServiceRequest], true)
+                && $this->workOrder->status === WorkOrderStatus::Approved
+                => "Your {$this->workOrder->type->label()} has been logged and is in the technician dispatch queue.",
+
+            in_array($this->workOrder->type, [WorkOrderType::LeakRepair, WorkOrderType::ServiceRequest], true)
+                && $this->workOrder->status === WorkOrderStatus::Completed
+                => "Your {$this->workOrder->type->label()} has been resolved.",
+
             $this->workOrder->status === WorkOrderStatus::Cancelled
                 => "Your {$this->workOrder->type->label()} work order has been cancelled.",
 

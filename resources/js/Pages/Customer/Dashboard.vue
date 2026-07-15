@@ -1,6 +1,6 @@
 <script setup>
 import AppShell from "@/Layouts/AppShell.vue";
-import { Head, useForm } from "@inertiajs/vue3";
+import { Head, Link, useForm } from "@inertiajs/vue3";
 import { ref } from "vue";
 
 const props = defineProps({
@@ -104,6 +104,20 @@ const bannerStyles = {
                 <p class="text-ocean-700">
                     Welcome back. Your account, meter readings, and billing will appear here as Aquameter grows.
                 </p>
+                <div class="flex flex-wrap gap-2 mt-4">
+                    <Link
+                        :href="route('customer.leak-reports.create')"
+                        class="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold bg-ocean-600 text-white hover:bg-ocean-700"
+                    >
+                        Report a Leak
+                    </Link>
+                    <Link
+                        :href="route('customer.service-requests.create')"
+                        class="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold border border-ocean-300 text-ocean-700 hover:bg-ocean-50"
+                    >
+                        Request Service
+                    </Link>
+                </div>
             </div>
         </div>
     </AppShell>

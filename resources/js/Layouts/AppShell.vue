@@ -17,6 +17,8 @@ const navByRole = {
         { label: "Meter Readings", route: "customer.meter-readings.index", icon: "gauge" },
         { label: "Bills", route: "customer.bills.index", icon: "clipboard-list" },
         { label: "Complaints", route: "customer.complaints.index", icon: "alert-triangle" },
+        { label: "Leak Reports", route: "customer.leak-reports.index", icon: "droplet" },
+        { label: "Service Requests", route: "customer.service-requests.index", icon: "wrench" },
     ],
     technician: [
         { label: "Dashboard", route: "technician.dashboard", icon: "home" },

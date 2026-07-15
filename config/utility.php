@@ -82,4 +82,36 @@ return [
 
     "default_grace_days" => (int) env("UTILITY_DEFAULT_GRACE_DAYS", 14),
     "disconnection_notice_days" => (int) env("UTILITY_DISCONNECTION_NOTICE_DAYS", 7),
+
+    /*
+    |--------------------------------------------------------------------
+    | Service Request Types
+    |--------------------------------------------------------------------
+    | Categories a customer may pick when filing a service request.
+    | Add/remove here only — never hardcode a type elsewhere.
+    */
+
+    "service_request_types" => [
+        "meter_inspection",
+        "pipe_maintenance",
+        "meter_relocation",
+        "other",
+    ],
+
+    /*
+    |--------------------------------------------------------------------
+    | Service Area Bounds
+    |--------------------------------------------------------------------
+    | Plausible lat/lng bounds for this utility's coverage area, covering
+    | Nakuru County (where the configured zones above are located). Used
+    | to reject geolocation coordinates on a leak report that fall well
+    | outside where this utility could plausibly operate.
+    */
+
+    "service_area_bounds" => [
+        "min_lat" => (float) env("UTILITY_SERVICE_MIN_LAT", -0.55),
+        "max_lat" => (float) env("UTILITY_SERVICE_MAX_LAT", -0.05),
+        "min_lng" => (float) env("UTILITY_SERVICE_MIN_LNG", 35.85),
+        "max_lng" => (float) env("UTILITY_SERVICE_MAX_LNG", 36.25),
+    ],
 ];

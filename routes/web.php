@@ -2,11 +2,13 @@
 
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\ComplaintController;
+use App\Http\Controllers\LeakReportController;
 use App\Http\Controllers\MeterController;
 use App\Http\Controllers\MeterReadingController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ServiceRequestController;
 use App\Http\Controllers\WorkOrderController;
 use App\Enums\WorkOrderStatus;
 use App\Models\Account;
@@ -78,6 +80,14 @@ Route::middleware(["auth", "verified", "role:customer"])->prefix("customer")->na
     Route::post("/complaints", [ComplaintController::class, "store"])->name("complaints.store");
 
     Route::post("/work-orders/{workOrder}/dispute", [WorkOrderController::class, "dispute"])->name("work-orders.dispute");
+
+    Route::get("/leak-reports", [LeakReportController::class, "index"])->name("leak-reports.index");
+    Route::get("/leak-reports/create", [LeakReportController::class, "create"])->name("leak-reports.create");
+    Route::post("/leak-reports", [LeakReportController::class, "store"])->name("leak-reports.store");
+
+    Route::get("/service-requests", [ServiceRequestController::class, "index"])->name("service-requests.index");
+    Route::get("/service-requests/create", [ServiceRequestController::class, "create"])->name("service-requests.create");
+    Route::post("/service-requests", [ServiceRequestController::class, "store"])->name("service-requests.store");
 });
 
 Route::middleware(["auth", "verified", "role:technician"])->prefix("technician")->name("technician.")->group(function () {

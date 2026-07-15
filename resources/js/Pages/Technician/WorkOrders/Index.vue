@@ -70,6 +70,12 @@ const statusStyles = {
                                     {{ wo.status_label }}
                                 </span>
                             </div>
+                            <div v-if="wo.source" class="text-sm text-ocean-700 bg-ocean-50 rounded-md px-3 py-2 mb-2">
+                                <span v-if="wo.source.severity_label" class="font-medium">{{ wo.source.severity_label }} severity — </span>
+                                <span v-if="wo.source.request_type" class="font-medium">{{ wo.source.request_type }} — </span>
+                                {{ wo.source.description }}
+                                <span v-if="wo.source.location_notes" class="block text-xs text-ocean-500 mt-1">{{ wo.source.location_notes }}</span>
+                            </div>
                             <textarea
                                 v-model="notes[wo.id]"
                                 rows="2"
@@ -99,6 +105,11 @@ const statusStyles = {
                             <div>
                                 <p class="font-medium text-ocean-900">{{ wo.type_label }} · {{ wo.account_number }}</p>
                                 <p class="text-xs text-ocean-500 mt-0.5">{{ wo.customer_name }} · {{ wo.zone }}</p>
+                                <p v-if="wo.source" class="text-xs text-ocean-600 mt-1">
+                                    <span v-if="wo.source.severity_label">{{ wo.source.severity_label }} severity — </span>
+                                    <span v-if="wo.source.request_type">{{ wo.source.request_type }} — </span>
+                                    {{ wo.source.description }}
+                                </p>
                             </div>
                             <Link
                                 :href="route('technician.work-orders.claim', wo.id)"

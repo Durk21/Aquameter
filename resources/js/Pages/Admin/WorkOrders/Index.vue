@@ -116,6 +116,13 @@ const statusStyles = {
                                 Dispute reason: {{ wo.dispute_reason }}
                             </p>
 
+                            <div v-if="wo.source" class="text-sm text-ocean-700 bg-ocean-50 rounded-md px-3 py-2 mb-2">
+                                <span v-if="wo.source.severity_label" class="font-medium">{{ wo.source.severity_label }} severity — </span>
+                                <span v-if="wo.source.request_type" class="font-medium">{{ wo.source.request_type }} — </span>
+                                {{ wo.source.description }}
+                                <span v-if="wo.source.location_notes" class="block text-xs text-ocean-500 mt-1">{{ wo.source.location_notes }}</span>
+                            </div>
+
                             <div class="flex flex-wrap gap-2 mt-2">
                                 <Link
                                     v-if="wo.status === 'notice_sent' && wo.notice_elapsed"

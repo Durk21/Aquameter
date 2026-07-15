@@ -7,6 +7,7 @@ use App\Enums\WorkOrderType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class WorkOrder extends Model
 {
@@ -28,6 +29,8 @@ class WorkOrder extends Model
         "dispute_reason",
         "completed_at",
         "resolution_notes",
+        "sourceable_type",
+        "sourceable_id",
     ];
 
     protected $casts = [
@@ -68,5 +71,10 @@ class WorkOrder extends Model
     public function disputedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, "disputed_by");
+    }
+
+    public function sourceable(): MorphTo
+    {
+        return $this->morphTo();
     }
 }

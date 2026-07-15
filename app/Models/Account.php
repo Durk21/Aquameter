@@ -51,4 +51,14 @@ class Account extends Model
     {
         return $this->hasMany(WorkOrder::class);
     }
+
+    public function leakReports(): HasMany
+    {
+        return $this->hasMany(LeakReport::class);
+    }
+
+    public function serviceRequests(): HasMany
+    {
+        return $this->hasMany(ServiceRequest::class);
+    }
 }

@@ -7,6 +7,8 @@ use App\Enums\WorkOrderStatus;
 use App\Enums\WorkOrderType;
 use App\Models\Account;
 use App\Models\Bill;
+use App\Models\LeakReport;
+use App\Models\ServiceRequest;
 use App\Models\User;
 use App\Models\WorkOrder;
 use App\Notifications\DisconnectionNoticeIssued;
@@ -223,6 +225,46 @@ class WorkOrderService
         ]);
 
         $account->user->notify(new WorkOrderStatusUpdated($workOrder));
+
+        return $workOrder;
+    }
+
+    /**
+     * A leak is urgent and self-evident — unlike disconnection it goes
+     * straight to the technician dispatch queue, no sign-off gate.
+     */
+    public static function fromLeakReport(LeakReport $leakReport): WorkOrder
+    {
+        $workOrder = WorkOrder::create([
+            "account_id" => $leakReport->account_id,
+            "type" => WorkOrderType::LeakRepair,
+            "status" => WorkOrderStatus::Approved,
+            "created_by" => $leakReport->reported_by,
+            "sourceable_type" => LeakReport::class,
+            "sourceable_id" => $leakReport->id,
+        ]);
+
+        $leakReport->account->user->notify(new WorkOrderStatusUpdated($workOrder));
+
+        return $workOrder;
+    }
+
+    /**
+     * A service request also goes straight to dispatch — it was asked
+     * for by the customer, there's nothing to sign off on.
+     */
+    public static function fromServiceRequest(ServiceRequest $serviceRequest): WorkOrder
+    {
+        $workOrder = WorkOrder::create([
+            "account_id" => $serviceRequest->account_id,
+            "type" => WorkOrderType::ServiceRequest,
+            "status" => WorkOrderStatus::Approved,
+            "created_by" => $serviceRequest->requested_by,
+            "sourceable_type" => ServiceRequest::class,
+            "sourceable_id" => $serviceRequest->id,
+        ]);
+
+        $serviceRequest->account->user->notify(new WorkOrderStatusUpdated($workOrder));
 
         return $workOrder;
     }

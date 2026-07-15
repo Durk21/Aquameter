@@ -6,6 +6,8 @@ use App\Enums\AccountStatus;
 use App\Enums\WorkOrderStatus;
 use App\Enums\WorkOrderType;
 use App\Models\Account;
+use App\Models\LeakReport;
+use App\Models\ServiceRequest;
 use App\Models\WorkOrder;
 use App\Services\WorkOrderService;
 use Illuminate\Http\RedirectResponse;
@@ -30,13 +32,13 @@ class WorkOrderController extends Controller
             ->map(fn (Account $account) => $this->summarizeAccount($account));
 
         $pipeline = WorkOrder::whereNotIn("status", [WorkOrderStatus::Completed, WorkOrderStatus::Cancelled])
-            ->with(["account.user"])
+            ->with(["account.user", "sourceable"])
             ->orderByDesc("created_at")
             ->get()
             ->map(fn (WorkOrder $workOrder) => $this->summarizeWorkOrder($workOrder));
 
         $history = WorkOrder::whereIn("status", [WorkOrderStatus::Completed, WorkOrderStatus::Cancelled])
-            ->with(["account.user"])
+            ->with(["account.user", "sourceable"])
             ->orderByDesc("updated_at")
             ->limit(20)
             ->get()
@@ -103,14 +105,14 @@ class WorkOrderController extends Controller
         $user = $request->user();
 
         $claimable = WorkOrder::where("status", WorkOrderStatus::Approved)
-            ->with("account.user")
+            ->with(["account.user", "sourceable"])
             ->orderBy("created_at")
             ->get()
             ->map(fn (WorkOrder $workOrder) => $this->summarizeWorkOrder($workOrder));
 
         $myJobs = WorkOrder::where("status", WorkOrderStatus::Claimed)
             ->where("assigned_to", $user->id)
-            ->with("account.user")
+            ->with(["account.user", "sourceable"])
             ->orderBy("claimed_at")
             ->get()
             ->map(fn (WorkOrder $workOrder) => $this->summarizeWorkOrder($workOrder));
@@ -192,6 +194,23 @@ class WorkOrderController extends Controller
             "dispute_reason" => $workOrder->dispute_reason,
             "resolution_notes" => $workOrder->resolution_notes,
             "created_at" => $workOrder->created_at->toDateString(),
+            "source" => $this->summarizeSource($workOrder),
         ];
+    }
+
+    protected function summarizeSource(WorkOrder $workOrder): ?array
+    {
+        return match (true) {
+            $workOrder->sourceable instanceof LeakReport => [
+                "severity_label" => $workOrder->sourceable->severity->label(),
+                "location_notes" => $workOrder->sourceable->location_notes,
+                "description" => $workOrder->sourceable->description,
+            ],
+            $workOrder->sourceable instanceof ServiceRequest => [
+                "request_type" => $workOrder->sourceable->type,
+                "description" => $workOrder->sourceable->description,
+            ],
+            default => null,
+        };
     }
 }
