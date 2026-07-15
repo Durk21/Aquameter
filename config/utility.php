@@ -138,4 +138,16 @@ return [
     */
 
     "stall_threshold_days" => (int) env("UTILITY_STALL_THRESHOLD_DAYS", 3),
+
+    /*
+    |--------------------------------------------------------------------
+    | Submission Rate Limiting
+    |--------------------------------------------------------------------
+    | Caps how many leak reports, service requests, or complaints a
+    | single customer can submit within the given window, to keep the
+    | technician dispatch queue from being flooded by one account.
+    */
+
+    "submission_rate_limit" => (int) env("UTILITY_SUBMISSION_RATE_LIMIT", 10),
+    "submission_rate_window_minutes" => (int) env("UTILITY_SUBMISSION_RATE_WINDOW_MINUTES", 1),
 ];

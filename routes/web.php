@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\DashboardController;
@@ -51,6 +52,8 @@ Route::middleware("auth")->group(function () {
     Route::get("/bills/{bill}/pdf", [BillController::class, "downloadPdf"])->name("bills.pdf");
 
     Route::get("/photos/{photo}", [PhotoController::class, "show"])->name("photos.show");
+
+    Route::get("/activity", [ActivityLogController::class, "index"])->name("activity.index");
 });
 
 Route::middleware(["auth", "verified", "role:customer"])->prefix("customer")->name("customer.")->group(function () {
@@ -60,18 +63,18 @@ Route::middleware(["auth", "verified", "role:customer"])->prefix("customer")->na
     Route::get("/bills", [BillController::class, "index"])->name("bills.index");
     Route::get("/complaints", [ComplaintController::class, "index"])->name("complaints.index");
     Route::get("/complaints/create", [ComplaintController::class, "create"])->name("complaints.create");
-    Route::post("/complaints", [ComplaintController::class, "store"])->name("complaints.store");
+    Route::post("/complaints", [ComplaintController::class, "store"])->middleware("throttle:submissions")->name("complaints.store");
 
     Route::post("/work-orders/{workOrder}/dispute", [WorkOrderController::class, "dispute"])->name("work-orders.dispute");
     Route::post("/work-orders/{workOrder}/rate", [WorkOrderController::class, "rate"])->name("work-orders.rate");
 
     Route::get("/leak-reports", [LeakReportController::class, "index"])->name("leak-reports.index");
     Route::get("/leak-reports/create", [LeakReportController::class, "create"])->name("leak-reports.create");
-    Route::post("/leak-reports", [LeakReportController::class, "store"])->name("leak-reports.store");
+    Route::post("/leak-reports", [LeakReportController::class, "store"])->middleware("throttle:submissions")->name("leak-reports.store");
 
     Route::get("/service-requests", [ServiceRequestController::class, "index"])->name("service-requests.index");
     Route::get("/service-requests/create", [ServiceRequestController::class, "create"])->name("service-requests.create");
-    Route::post("/service-requests", [ServiceRequestController::class, "store"])->name("service-requests.store");
+    Route::post("/service-requests", [ServiceRequestController::class, "store"])->middleware("throttle:submissions")->name("service-requests.store");
 });
 
 Route::middleware(["auth", "verified", "role:technician"])->prefix("technician")->name("technician.")->group(function () {
