@@ -7,6 +7,7 @@ use App\Enums\WorkOrderStatus;
 use App\Enums\WorkOrderType;
 use App\Models\Account;
 use App\Models\LeakReport;
+use App\Models\MaintenanceSchedule;
 use App\Models\ServiceRequest;
 use App\Models\WorkOrder;
 use App\Services\PhotoUploadService;
@@ -177,6 +178,20 @@ class WorkOrderController extends Controller
             ->with("status", "Dispute submitted. This work order is paused pending admin review.");
     }
 
+    public function rate(Request $request, WorkOrder $workOrder): RedirectResponse
+    {
+        Gate::authorize("rate", $workOrder);
+
+        $validated = $request->validate([
+            "rating" => "required|integer|min:1|max:5",
+            "rating_comment" => "nullable|string|max:2000",
+        ]);
+
+        WorkOrderService::rate($workOrder, $request->user(), $validated["rating"], $validated["rating_comment"] ?? null);
+
+        return back()->with("status", "Thanks for the feedback.");
+    }
+
     protected function summarizeAccount(Account $account): array
     {
         return [
@@ -213,6 +228,8 @@ class WorkOrderController extends Controller
                 "id" => $photo->id,
                 "url" => route("photos.show", $photo->id),
             ]),
+            "rating" => $workOrder->rating,
+            "rating_comment" => $workOrder->rating_comment,
         ];
     }
 
@@ -230,6 +247,15 @@ class WorkOrderController extends Controller
             ],
             $workOrder->sourceable instanceof ServiceRequest => [
                 "request_type" => $workOrder->sourceable->type,
+                "description" => $workOrder->sourceable->description,
+                "photos" => $workOrder->sourceable->photos->map(fn ($photo) => [
+                    "id" => $photo->id,
+                    "url" => route("photos.show", $photo->id),
+                ]),
+            ],
+            $workOrder->sourceable instanceof MaintenanceSchedule => [
+                "scheduled_for" => $workOrder->sourceable->scheduled_for->toDateString(),
+                "meter_number" => $workOrder->sourceable->meter->meter_number,
                 "description" => $workOrder->sourceable->description,
                 "photos" => $workOrder->sourceable->photos->map(fn ($photo) => [
                     "id" => $photo->id,

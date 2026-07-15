@@ -76,6 +76,18 @@ const formatDays = (value) => (value === null ? "—" : `${value}d`);
             </section>
 
             <section>
+                <h3 class="font-semibold text-ocean-900 mb-3">Customer Satisfaction</h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <StatTile
+                        label="Avg Satisfaction"
+                        :value="stats.avg_rating === null ? '—' : `${stats.avg_rating} / 5`"
+                        accent="amber"
+                    />
+                    <StatTile label="Rated Jobs" :value="stats.rated_count" accent="ocean" />
+                </div>
+            </section>
+
+            <section>
                 <h3 class="font-semibold text-ocean-900 mb-3">Escalations</h3>
                 <p class="text-sm text-ocean-500 mb-3">
                     Flagged when a work order sits unclaimed, or a complaint sits unreviewed, for {{ stallThresholdDays }}+ days.

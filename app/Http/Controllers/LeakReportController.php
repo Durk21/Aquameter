@@ -114,6 +114,9 @@ class LeakReportController extends Controller
                 "id" => $photo->id,
                 "url" => route("photos.show", $photo->id),
             ]),
+            "work_order_id" => $leakReport->workOrder?->id,
+            "rating" => $leakReport->workOrder?->rating,
+            "rating_comment" => $leakReport->workOrder?->rating_comment,
         ];
     }
 }

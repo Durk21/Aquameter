@@ -1,6 +1,7 @@
 <script setup>
 import AppShell from "@/Layouts/AppShell.vue";
 import PhotoGallery from "@/Components/PhotoGallery.vue";
+import StarRating from "@/Components/StarRating.vue";
 import { Head, Link } from "@inertiajs/vue3";
 
 defineProps({
@@ -77,6 +78,10 @@ const typeLabels = {
                     </div>
                     <p class="text-sm text-ocean-700 mb-2">{{ sr.description }}</p>
                     <PhotoGallery :photos="sr.photos" />
+                    <p v-if="sr.rating" class="text-sm text-amber-600 mt-2">
+                        {{ '★'.repeat(sr.rating) }}{{ '☆'.repeat(5 - sr.rating) }}
+                    </p>
+                    <StarRating v-else-if="sr.status === 'completed' && sr.work_order_id" :work-order-id="sr.work_order_id" />
                     <p class="text-xs text-ocean-400 mt-2">Submitted {{ sr.created_at }}</p>
                 </div>
             </div>

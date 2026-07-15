@@ -8,6 +8,7 @@ enum WorkOrderType: string
     case Reconnection   = "reconnection";
     case LeakRepair     = "leak_repair";
     case ServiceRequest = "service_request";
+    case Maintenance    = "maintenance";
 
     public function label(): string
     {
@@ -16,6 +17,7 @@ enum WorkOrderType: string
             self::Reconnection   => "Reconnection",
             self::LeakRepair     => "Leak Repair",
             self::ServiceRequest => "Service Request",
+            self::Maintenance    => "Maintenance",
         };
     }
 }

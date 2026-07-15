@@ -88,6 +88,9 @@ class ServiceRequestController extends Controller
                 "id" => $photo->id,
                 "url" => route("photos.show", $photo->id),
             ]),
+            "work_order_id" => $serviceRequest->workOrder?->id,
+            "rating" => $serviceRequest->workOrder?->rating,
+            "rating_comment" => $serviceRequest->workOrder?->rating_comment,
         ];
     }
 }

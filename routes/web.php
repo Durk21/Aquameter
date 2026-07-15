@@ -4,6 +4,7 @@ use App\Http\Controllers\BillController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LeakReportController;
+use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\MeterController;
 use App\Http\Controllers\MeterReadingController;
 use App\Http\Controllers\NotificationController;
@@ -62,6 +63,7 @@ Route::middleware(["auth", "verified", "role:customer"])->prefix("customer")->na
     Route::post("/complaints", [ComplaintController::class, "store"])->name("complaints.store");
 
     Route::post("/work-orders/{workOrder}/dispute", [WorkOrderController::class, "dispute"])->name("work-orders.dispute");
+    Route::post("/work-orders/{workOrder}/rate", [WorkOrderController::class, "rate"])->name("work-orders.rate");
 
     Route::get("/leak-reports", [LeakReportController::class, "index"])->name("leak-reports.index");
     Route::get("/leak-reports/create", [LeakReportController::class, "create"])->name("leak-reports.create");
@@ -107,6 +109,10 @@ Route::middleware(["auth", "verified", "role:admin"])->prefix("admin")->name("ad
     Route::get("/staff/create", [StaffController::class, "create"])->name("staff.create");
     Route::post("/staff", [StaffController::class, "store"])->name("staff.store");
     Route::patch("/staff/{staff}/zone", [StaffController::class, "updateZone"])->name("staff.update-zone");
+
+    Route::get("/maintenance", [MaintenanceController::class, "index"])->name("maintenance.index");
+    Route::get("/maintenance/create", [MaintenanceController::class, "create"])->name("maintenance.create");
+    Route::post("/maintenance", [MaintenanceController::class, "store"])->name("maintenance.store");
 });
 
 Route::middleware(["auth", "verified", "role:management"])->prefix("management")->name("management.")->group(function () {

@@ -8,6 +8,7 @@ use App\Enums\WorkOrderType;
 use App\Models\Account;
 use App\Models\Bill;
 use App\Models\LeakReport;
+use App\Models\MaintenanceSchedule;
 use App\Models\ServiceRequest;
 use App\Models\User;
 use App\Models\WorkOrder;
@@ -267,6 +268,54 @@ class WorkOrderService
         $serviceRequest->account->user->notify(new WorkOrderStatusUpdated($workOrder));
 
         return $workOrder;
+    }
+
+    /**
+     * A scheduled maintenance visit — admin-initiated, no sign-off
+     * gate. It enters the claimable pool immediately; the scheduled
+     * date is a plan for the technician, not a hard release time.
+     */
+    public static function fromMaintenanceSchedule(MaintenanceSchedule $schedule): WorkOrder
+    {
+        $workOrder = WorkOrder::create([
+            "account_id" => $schedule->account_id,
+            "type" => WorkOrderType::Maintenance,
+            "status" => WorkOrderStatus::Approved,
+            "created_by" => $schedule->created_by,
+            "sourceable_type" => MaintenanceSchedule::class,
+            "sourceable_id" => $schedule->id,
+        ]);
+
+        $schedule->account->user->notify(new WorkOrderStatusUpdated($workOrder));
+
+        return $workOrder;
+    }
+
+    /**
+     * A customer may rate a completed work order exactly once.
+     */
+    public static function rate(WorkOrder $workOrder, User $customer, int $rating, ?string $comment): WorkOrder
+    {
+        if ($workOrder->status !== WorkOrderStatus::Completed) {
+            throw ValidationException::withMessages([
+                "rating" => "Only a completed job can be rated.",
+            ]);
+        }
+
+        if ($workOrder->rating !== null) {
+            throw ValidationException::withMessages([
+                "rating" => "This job has already been rated.",
+            ]);
+        }
+
+        return DB::transaction(function () use ($workOrder, $rating, $comment) {
+            $workOrder->rating = $rating;
+            $workOrder->rating_comment = $comment;
+            $workOrder->rated_at = now();
+            $workOrder->save();
+
+            return $workOrder;
+        });
     }
 
     public static function hasOpenWorkOrder(Account $account, WorkOrderType $type): bool

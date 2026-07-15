@@ -32,6 +32,9 @@ class WorkOrder extends Model
         "resolution_notes",
         "sourceable_type",
         "sourceable_id",
+        "rating",
+        "rating_comment",
+        "rated_at",
     ];
 
     protected $casts = [
@@ -42,6 +45,8 @@ class WorkOrder extends Model
         "notice_deadline" => "datetime",
         "disputed_at" => "datetime",
         "completed_at" => "datetime",
+        "rating" => "integer",
+        "rated_at" => "datetime",
     ];
 
     public function account(): BelongsTo

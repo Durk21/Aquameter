@@ -195,6 +195,8 @@ class DashboardController extends Controller
             ->sortByDesc("count")
             ->values();
 
+        $ratedCount = WorkOrder::whereNotNull("rating")->count();
+
         return Inertia::render("Management/Dashboard", [
             "stats" => [
                 "active_pipeline" => WorkOrder::whereNotIn("status", [WorkOrderStatus::Completed, WorkOrderStatus::Cancelled])->count(),
@@ -229,6 +231,8 @@ class DashboardController extends Controller
                 "stalled_complaints" => Complaint::whereIn("status", self::OPEN_COMPLAINT_STATUSES)
                     ->where("created_at", "<=", $stallThreshold)
                     ->count(),
+                "avg_rating" => $ratedCount > 0 ? round(WorkOrder::whereNotNull("rating")->avg("rating"), 1) : null,
+                "rated_count" => $ratedCount,
             ],
             "byType" => $byType,
             "byZone" => $byZone,

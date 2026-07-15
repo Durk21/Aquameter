@@ -34,6 +34,11 @@ class WorkOrderPolicy
         return $user->hasRole(config("roles.admin"));
     }
 
+    public function scheduleMaintenance(User $user): bool
+    {
+        return $user->hasRole(config("roles.admin"));
+    }
+
     public function signOff(User $user, WorkOrder $workOrder): bool
     {
         return $user->hasRole(config("roles.admin"));
@@ -77,5 +82,19 @@ class WorkOrderPolicy
         }
 
         return $user->id === $workOrder->assigned_to;
+    }
+
+    /**
+     * Only the owning customer may rate their own completed job, and
+     * only once — the "already rated" guard lives in the service, this
+     * only checks who's allowed to try.
+     */
+    public function rate(User $user, WorkOrder $workOrder): bool
+    {
+        if (! $user->hasRole(config("roles.customer"))) {
+            return false;
+        }
+
+        return $user->id === $workOrder->account->user_id;
     }
 }

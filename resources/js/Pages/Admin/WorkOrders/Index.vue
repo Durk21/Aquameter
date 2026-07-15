@@ -120,6 +120,7 @@ const statusStyles = {
                             <div v-if="wo.source" class="text-sm text-ocean-700 bg-ocean-50 rounded-md px-3 py-2 mb-2">
                                 <span v-if="wo.source.severity_label" class="font-medium">{{ wo.source.severity_label }} severity — </span>
                                 <span v-if="wo.source.request_type" class="font-medium">{{ wo.source.request_type }} — </span>
+                                <span v-if="wo.source.scheduled_for" class="font-medium">Scheduled {{ wo.source.scheduled_for }} ({{ wo.source.meter_number }}) — </span>
                                 {{ wo.source.description }}
                                 <span v-if="wo.source.location_notes" class="block text-xs text-ocean-500 mt-1">{{ wo.source.location_notes }}</span>
                                 <PhotoGallery :photos="wo.source.photos" />
@@ -199,6 +200,10 @@ const statusStyles = {
                                 </span>
                             </div>
                             <PhotoGallery v-if="wo.evidence_photos" :photos="wo.evidence_photos" />
+                            <p v-if="wo.rating" class="text-xs text-amber-600 mt-1">
+                                {{ '★'.repeat(wo.rating) }}{{ '☆'.repeat(5 - wo.rating) }}
+                                <span v-if="wo.rating_comment" class="text-ocean-500">— {{ wo.rating_comment }}</span>
+                            </p>
                         </div>
                     </div>
                 </div>
