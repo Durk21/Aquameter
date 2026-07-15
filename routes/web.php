@@ -9,6 +9,7 @@ use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\MeterController;
 use App\Http\Controllers\MeterReadingController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\OutageController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PhotoController;
 use App\Http\Controllers\ProfileController;
@@ -54,6 +55,11 @@ Route::middleware("auth")->group(function () {
     Route::get("/photos/{photo}", [PhotoController::class, "show"])->name("photos.show");
 
     Route::get("/activity", [ActivityLogController::class, "index"])->name("activity.index");
+
+    Route::get("/outages", [OutageController::class, "index"])->name("outages.index");
+    Route::get("/outages/create", [OutageController::class, "create"])->name("outages.create");
+    Route::post("/outages", [OutageController::class, "store"])->name("outages.store");
+    Route::patch("/outages/{outage}/resolve", [OutageController::class, "resolve"])->name("outages.resolve");
 });
 
 Route::middleware(["auth", "verified", "role:customer"])->prefix("customer")->name("customer.")->group(function () {
@@ -75,6 +81,8 @@ Route::middleware(["auth", "verified", "role:customer"])->prefix("customer")->na
     Route::get("/service-requests", [ServiceRequestController::class, "index"])->name("service-requests.index");
     Route::get("/service-requests/create", [ServiceRequestController::class, "create"])->name("service-requests.create");
     Route::post("/service-requests", [ServiceRequestController::class, "store"])->middleware("throttle:submissions")->name("service-requests.store");
+
+    Route::get("/outages", [OutageController::class, "customerIndex"])->name("outages.index");
 });
 
 Route::middleware(["auth", "verified", "role:technician"])->prefix("technician")->name("technician.")->group(function () {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\AccountStatus;
 use App\Enums\BillStatus;
 use App\Enums\ComplaintStatus;
+use App\Enums\OutageStatus;
 use App\Enums\WorkOrderStatus;
 use App\Enums\WorkOrderType;
 use App\Models\Account;
@@ -12,6 +13,7 @@ use App\Models\Bill;
 use App\Models\Complaint;
 use App\Models\LeakReport;
 use App\Models\Meter;
+use App\Models\Outage;
 use App\Models\ServiceRequest;
 use App\Models\User;
 use App\Models\WorkOrder;
@@ -95,6 +97,23 @@ class DashboardController extends Controller
                 ->first()
             : null;
 
+        $activeOutages = Outage::where(fn ($query) => $query
+                ->whereNull("zone")
+                ->when($account, fn ($query) => $query->orWhere("zone", $account->zone)))
+            ->whereIn("status", [OutageStatus::Scheduled, OutageStatus::Active])
+            ->orderBy("starts_at")
+            ->get()
+            ->map(fn (Outage $outage) => [
+                "id" => $outage->id,
+                "zone" => $outage->zone,
+                "title" => $outage->title,
+                "description" => $outage->description,
+                "status" => $outage->status->value,
+                "status_label" => $outage->status->label(),
+                "starts_at" => $outage->starts_at->toDateTimeString(),
+                "ends_at" => $outage->ends_at?->toDateTimeString(),
+            ]);
+
         $stats = null;
 
         if ($account) {
@@ -137,6 +156,7 @@ class DashboardController extends Controller
                 "status_label" => $activeWorkOrder->status->label(),
                 "notice_deadline" => $activeWorkOrder->notice_deadline?->toDateString(),
             ] : null,
+            "outages" => $activeOutages,
             "stats" => $stats,
         ]);
     }

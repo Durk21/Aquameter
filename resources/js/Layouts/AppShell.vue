@@ -19,6 +19,7 @@ const navByRole = {
         { label: "Complaints", route: "customer.complaints.index", icon: "alert-triangle" },
         { label: "Leak Reports", route: "customer.leak-reports.index", icon: "droplet" },
         { label: "Service Requests", route: "customer.service-requests.index", icon: "wrench" },
+        { label: "Outages", route: "customer.outages.index", icon: "megaphone" },
     ],
     technician: [
         { label: "Dashboard", route: "technician.dashboard", icon: "home" },
@@ -33,10 +34,12 @@ const navByRole = {
         { label: "Work Orders", route: "admin.work-orders.index", icon: "shield-check" },
         { label: "Staff", route: "admin.staff.index", icon: "user" },
         { label: "Maintenance", route: "admin.maintenance.index", icon: "calendar" },
+        { label: "Outages", route: "outages.index", icon: "megaphone" },
         { label: "Activity Log", route: "activity.index", icon: "history" },
     ],
     management: [
         { label: "Dashboard", route: "management.dashboard", icon: "home" },
+        { label: "Outages", route: "outages.index", icon: "megaphone" },
         { label: "Activity Log", route: "activity.index", icon: "history" },
     ],
 };

@@ -4,9 +4,11 @@ namespace App\Providers;
 
 use App\Models\Bill;
 use App\Models\Complaint;
+use App\Models\Outage;
 use App\Models\WorkOrder;
 use App\Observers\BillObserver;
 use App\Observers\ComplaintObserver;
+use App\Observers\OutageObserver;
 use App\Observers\WorkOrderObserver;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
@@ -40,5 +42,6 @@ class AppServiceProvider extends ServiceProvider
         Bill::observe(BillObserver::class);
         Complaint::observe(ComplaintObserver::class);
         WorkOrder::observe(WorkOrderObserver::class);
+        Outage::observe(OutageObserver::class);
     }
 }

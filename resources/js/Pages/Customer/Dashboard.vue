@@ -9,6 +9,10 @@ const props = defineProps({
         type: Object,
         default: null,
     },
+    outages: {
+        type: Array,
+        default: () => [],
+    },
     stats: {
         type: Object,
         default: null,
@@ -55,6 +59,21 @@ const accountStatusStyles = {
         </template>
 
         <div class="max-w-5xl mx-auto px-4 md:px-6 py-6 space-y-6">
+            <div
+                v-for="outage in outages"
+                :key="outage.id"
+                class="rounded-lg border p-5"
+                :class="outage.status === 'active' ? 'bg-red-50 border-red-200 text-red-900' : 'bg-amber-50 border-amber-200 text-amber-900'"
+            >
+                <p class="font-semibold mb-1">
+                    {{ outage.status === 'active' ? 'Ongoing outage' : 'Scheduled outage' }}: {{ outage.title }}
+                </p>
+                <p class="text-sm">{{ outage.description }}</p>
+                <p class="text-xs mt-2 opacity-80">
+                    {{ outage.zone || 'All zones' }} · Starts {{ outage.starts_at }}<span v-if="outage.ends_at"> · Ends {{ outage.ends_at }}</span>
+                </p>
+            </div>
+
             <div
                 v-if="activeWorkOrder"
                 class="rounded-lg border p-5"
