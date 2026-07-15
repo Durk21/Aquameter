@@ -3,6 +3,7 @@ import AppShell from "@/Layouts/AppShell.vue";
 import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
+import PhotoUploadInput from "@/Components/PhotoUploadInput.vue";
 import { Head, useForm } from "@inertiajs/vue3";
 import { ref } from "vue";
 
@@ -37,6 +38,7 @@ const form = useForm({
     latitude: "",
     longitude: "",
     description: "",
+    photos: [],
 });
 
 const locating = ref(false);
@@ -75,6 +77,7 @@ const useCurrentLocation = () => {
 
 const submit = () => {
     form.post(route("customer.leak-reports.store"), {
+        forceFormData: true,
         onSuccess: () => form.reset(),
     });
 };
@@ -182,6 +185,14 @@ const submit = () => {
                             placeholder="What does the leak look like? How much water, how long has it been going?"
                         ></textarea>
                         <InputError class="mt-2" :message="form.errors.description" />
+                    </div>
+
+                    <div class="mt-4">
+                        <InputLabel value="Photos (optional)" />
+                        <PhotoUploadInput
+                            v-model="form.photos"
+                            :error="form.errors.photos || form.errors['photos.0']"
+                        />
                     </div>
 
                     <div v-if="$page.props.flash?.status" class="mt-4 text-sm text-ocean-700 bg-ocean-50 rounded-md px-3 py-2">

@@ -6,6 +6,7 @@ use App\Enums\LeakSeverity;
 use App\Models\Account;
 use App\Models\LeakReport;
 use App\Models\Meter;
+use App\Services\PhotoUploadService;
 use App\Services\WorkOrderService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,7 +24,7 @@ class LeakReportController extends Controller
         $accountIds = Account::where("user_id", $request->user()->id)->pluck("id");
 
         $leakReports = LeakReport::whereIn("account_id", $accountIds)
-            ->with("workOrder")
+            ->with(["workOrder", "photos"])
             ->orderByDesc("created_at")
             ->get()
             ->map(fn (LeakReport $leakReport) => $this->summarize($leakReport));
@@ -59,7 +60,7 @@ class LeakReportController extends Controller
 
         $bounds = config("utility.service_area_bounds");
 
-        $validated = $request->validate([
+        $validated = $request->validate(array_merge([
             "meter_id" => "nullable|exists:meters,id",
             "severity" => ["required", Rule::in(array_column(LeakSeverity::cases(), "value"))],
             "zone" => ["required", Rule::in(config("utility.zones"))],
@@ -67,7 +68,7 @@ class LeakReportController extends Controller
             "latitude" => "nullable|numeric|between:{$bounds['min_lat']},{$bounds['max_lat']}",
             "longitude" => "nullable|numeric|between:{$bounds['min_lng']},{$bounds['max_lng']}",
             "description" => "required|string|max:2000",
-        ]);
+        ], PhotoUploadService::validationRules()));
 
         if (! empty($validated["meter_id"])) {
             $meter = Meter::findOrFail($validated["meter_id"]);
@@ -88,6 +89,8 @@ class LeakReportController extends Controller
             "description" => $validated["description"],
         ]);
 
+        PhotoUploadService::store($leakReport, $request->file("photos", []), $request->user());
+
         WorkOrderService::fromLeakReport($leakReport);
 
         return redirect()
@@ -107,6 +110,10 @@ class LeakReportController extends Controller
             "status" => $leakReport->workOrder?->status->value,
             "status_label" => $leakReport->workOrder?->status->label(),
             "created_at" => $leakReport->created_at->toDateString(),
+            "photos" => $leakReport->photos->map(fn ($photo) => [
+                "id" => $photo->id,
+                "url" => route("photos.show", $photo->id),
+            ]),
         ];
     }
 }

@@ -114,4 +114,17 @@ return [
         "min_lng" => (float) env("UTILITY_SERVICE_MIN_LNG", 35.85),
         "max_lng" => (float) env("UTILITY_SERVICE_MAX_LNG", 36.25),
     ],
+
+    /*
+    |--------------------------------------------------------------------
+    | Photo Uploads
+    |--------------------------------------------------------------------
+    | Evidence photos on leak reports, service requests, and completed
+    | work orders. Stored on the private disk, served only through an
+    | authorized route — never a public URL.
+    */
+
+    "max_photos_per_upload" => (int) env("UTILITY_MAX_PHOTOS_PER_UPLOAD", 3),
+    "max_photo_size_kb" => (int) env("UTILITY_MAX_PHOTO_SIZE_KB", 2048),
+    "photo_mimes" => ["jpeg", "jpg", "png", "webp"],
 ];

@@ -1,5 +1,7 @@
 <script setup>
 import AppShell from "@/Layouts/AppShell.vue";
+import PhotoGallery from "@/Components/PhotoGallery.vue";
+import PhotoUploadInput from "@/Components/PhotoUploadInput.vue";
 import { Head, Link, router } from "@inertiajs/vue3";
 import { reactive } from "vue";
 
@@ -23,10 +25,14 @@ const props = defineProps({
 });
 
 const notes = reactive({});
+const photos = reactive({});
 
 const complete = (workOrder) => {
     router.patch(route("technician.work-orders.complete", workOrder.id), {
         resolution_notes: notes[workOrder.id] || "",
+        photos: photos[workOrder.id] || [],
+    }, {
+        forceFormData: true,
     });
 };
 
@@ -83,6 +89,7 @@ const statusStyles = {
                                 <span v-if="wo.source.request_type" class="font-medium">{{ wo.source.request_type }} — </span>
                                 {{ wo.source.description }}
                                 <span v-if="wo.source.location_notes" class="block text-xs text-ocean-500 mt-1">{{ wo.source.location_notes }}</span>
+                                <PhotoGallery :photos="wo.source.photos" />
                             </div>
                             <textarea
                                 v-model="notes[wo.id]"
@@ -91,6 +98,13 @@ const statusStyles = {
                                 placeholder="Notes on how this job was completed (optional)"
                                 class="block w-full text-sm border-ocean-300 focus:border-ocean-500 focus:ring-ocean-500 rounded-md shadow-sm mb-2"
                             ></textarea>
+                            <div class="mb-2">
+                                <p class="text-xs font-medium text-ocean-500 mb-1">Repair evidence (optional)</p>
+                                <PhotoUploadInput
+                                    :model-value="photos[wo.id] || []"
+                                    @update:model-value="(value) => (photos[wo.id] = value)"
+                                />
+                            </div>
                             <button
                                 @click="complete(wo)"
                                 class="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold bg-emerald-600 text-white hover:bg-emerald-700"
@@ -124,6 +138,7 @@ const statusStyles = {
                                     <span v-if="wo.source.request_type">{{ wo.source.request_type }} — </span>
                                     {{ wo.source.description }}
                                 </p>
+                                <PhotoGallery v-if="wo.source" :photos="wo.source.photos" />
                             </div>
                             <Link
                                 :href="route('technician.work-orders.claim', wo.id)"
@@ -157,6 +172,7 @@ const statusStyles = {
                                     <span v-if="wo.source.request_type">{{ wo.source.request_type }} — </span>
                                     {{ wo.source.description }}
                                 </p>
+                                <PhotoGallery v-if="wo.source" :photos="wo.source.photos" />
                             </div>
                             <Link
                                 :href="route('technician.work-orders.claim', wo.id)"

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class ServiceRequest extends Model
@@ -32,5 +33,10 @@ class ServiceRequest extends Model
     public function workOrder(): MorphOne
     {
         return $this->morphOne(WorkOrder::class, "sourceable");
+    }
+
+    public function photos(): MorphMany
+    {
+        return $this->morphMany(Photo::class, "photoable");
     }
 }

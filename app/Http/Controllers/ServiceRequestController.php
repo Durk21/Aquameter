@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Account;
 use App\Models\ServiceRequest;
+use App\Services\PhotoUploadService;
 use App\Services\WorkOrderService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,7 +22,7 @@ class ServiceRequestController extends Controller
         $accountIds = Account::where("user_id", $request->user()->id)->pluck("id");
 
         $serviceRequests = ServiceRequest::whereIn("account_id", $accountIds)
-            ->with("workOrder")
+            ->with(["workOrder", "photos"])
             ->orderByDesc("created_at")
             ->get()
             ->map(fn (ServiceRequest $serviceRequest) => $this->summarize($serviceRequest));
@@ -50,11 +51,11 @@ class ServiceRequestController extends Controller
 
         Gate::authorize("createFor", [ServiceRequest::class, $account]);
 
-        $validated = $request->validate([
+        $validated = $request->validate(array_merge([
             "type" => ["required", Rule::in(config("utility.service_request_types"))],
             "zone" => ["required", Rule::in(config("utility.zones"))],
             "description" => "required|string|max:2000",
-        ]);
+        ], PhotoUploadService::validationRules()));
 
         $serviceRequest = ServiceRequest::create([
             "account_id" => $account->id,
@@ -63,6 +64,8 @@ class ServiceRequestController extends Controller
             "zone" => $validated["zone"],
             "description" => $validated["description"],
         ]);
+
+        PhotoUploadService::store($serviceRequest, $request->file("photos", []), $request->user());
 
         WorkOrderService::fromServiceRequest($serviceRequest);
 
@@ -81,6 +84,10 @@ class ServiceRequestController extends Controller
             "status" => $serviceRequest->workOrder?->status->value,
             "status_label" => $serviceRequest->workOrder?->status->label(),
             "created_at" => $serviceRequest->created_at->toDateString(),
+            "photos" => $serviceRequest->photos->map(fn ($photo) => [
+                "id" => $photo->id,
+                "url" => route("photos.show", $photo->id),
+            ]),
         ];
     }
 }

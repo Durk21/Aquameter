@@ -3,6 +3,7 @@ import AppShell from "@/Layouts/AppShell.vue";
 import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
+import PhotoUploadInput from "@/Components/PhotoUploadInput.vue";
 import { Head, useForm } from "@inertiajs/vue3";
 
 const props = defineProps({
@@ -31,10 +32,12 @@ const form = useForm({
     type: props.types[0] || "",
     zone: props.defaultZone,
     description: "",
+    photos: [],
 });
 
 const submit = () => {
     form.post(route("customer.service-requests.store"), {
+        forceFormData: true,
         onSuccess: () => form.reset(),
     });
 };
@@ -95,6 +98,14 @@ const submit = () => {
                             placeholder="Describe what you need done."
                         ></textarea>
                         <InputError class="mt-2" :message="form.errors.description" />
+                    </div>
+
+                    <div class="mt-4">
+                        <InputLabel value="Photos (optional)" />
+                        <PhotoUploadInput
+                            v-model="form.photos"
+                            :error="form.errors.photos || form.errors['photos.0']"
+                        />
                     </div>
 
                     <div v-if="$page.props.flash?.status" class="mt-4 text-sm text-ocean-700 bg-ocean-50 rounded-md px-3 py-2">

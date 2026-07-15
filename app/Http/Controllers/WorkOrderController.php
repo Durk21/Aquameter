@@ -9,6 +9,7 @@ use App\Models\Account;
 use App\Models\LeakReport;
 use App\Models\ServiceRequest;
 use App\Models\WorkOrder;
+use App\Services\PhotoUploadService;
 use App\Services\WorkOrderService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -32,13 +33,13 @@ class WorkOrderController extends Controller
             ->map(fn (Account $account) => $this->summarizeAccount($account));
 
         $pipeline = WorkOrder::whereNotIn("status", [WorkOrderStatus::Completed, WorkOrderStatus::Cancelled])
-            ->with(["account.user", "sourceable"])
+            ->with(["account.user", "sourceable.photos", "photos"])
             ->orderByDesc("created_at")
             ->get()
             ->map(fn (WorkOrder $workOrder) => $this->summarizeWorkOrder($workOrder));
 
         $history = WorkOrder::whereIn("status", [WorkOrderStatus::Completed, WorkOrderStatus::Cancelled])
-            ->with(["account.user", "sourceable"])
+            ->with(["account.user", "sourceable.photos", "photos"])
             ->orderByDesc("updated_at")
             ->limit(20)
             ->get()
@@ -105,14 +106,14 @@ class WorkOrderController extends Controller
         $user = $request->user();
 
         $claimable = WorkOrder::where("status", WorkOrderStatus::Approved)
-            ->with(["account.user", "sourceable"])
+            ->with(["account.user", "sourceable.photos", "photos"])
             ->orderBy("created_at")
             ->get()
             ->map(fn (WorkOrder $workOrder) => $this->summarizeWorkOrder($workOrder));
 
         $myJobs = WorkOrder::where("status", WorkOrderStatus::Claimed)
             ->where("assigned_to", $user->id)
-            ->with(["account.user", "sourceable"])
+            ->with(["account.user", "sourceable.photos", "photos"])
             ->orderBy("claimed_at")
             ->get()
             ->map(fn (WorkOrder $workOrder) => $this->summarizeWorkOrder($workOrder));
@@ -148,11 +149,13 @@ class WorkOrderController extends Controller
     {
         Gate::authorize("complete", $workOrder);
 
-        $validated = $request->validate([
+        $validated = $request->validate(array_merge([
             "resolution_notes" => "nullable|string|max:2000",
-        ]);
+        ], PhotoUploadService::validationRules()));
 
         WorkOrderService::complete($workOrder, $request->user(), $validated["resolution_notes"] ?? null);
+
+        PhotoUploadService::store($workOrder, $request->file("photos", []), $request->user());
 
         return redirect()
             ->route("technician.work-orders.index")
@@ -206,6 +209,10 @@ class WorkOrderController extends Controller
             "resolution_notes" => $workOrder->resolution_notes,
             "created_at" => $workOrder->created_at->toDateString(),
             "source" => $this->summarizeSource($workOrder),
+            "evidence_photos" => $workOrder->photos->map(fn ($photo) => [
+                "id" => $photo->id,
+                "url" => route("photos.show", $photo->id),
+            ]),
         ];
     }
 
@@ -216,10 +223,18 @@ class WorkOrderController extends Controller
                 "severity_label" => $workOrder->sourceable->severity->label(),
                 "location_notes" => $workOrder->sourceable->location_notes,
                 "description" => $workOrder->sourceable->description,
+                "photos" => $workOrder->sourceable->photos->map(fn ($photo) => [
+                    "id" => $photo->id,
+                    "url" => route("photos.show", $photo->id),
+                ]),
             ],
             $workOrder->sourceable instanceof ServiceRequest => [
                 "request_type" => $workOrder->sourceable->type,
                 "description" => $workOrder->sourceable->description,
+                "photos" => $workOrder->sourceable->photos->map(fn ($photo) => [
+                    "id" => $photo->id,
+                    "url" => route("photos.show", $photo->id),
+                ]),
             ],
             default => null,
         };

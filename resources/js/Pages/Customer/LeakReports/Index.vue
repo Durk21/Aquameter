@@ -1,5 +1,6 @@
 <script setup>
 import AppShell from "@/Layouts/AppShell.vue";
+import PhotoGallery from "@/Components/PhotoGallery.vue";
 import { Head, Link } from "@inertiajs/vue3";
 
 defineProps({
@@ -80,6 +81,7 @@ const severityStyles = {
                     </div>
                     <p class="text-sm text-ocean-700 mb-2">{{ leak.description }}</p>
                     <p v-if="leak.location_notes" class="text-xs text-ocean-500 mb-2">{{ leak.location_notes }}</p>
+                    <PhotoGallery :photos="leak.photos" />
                     <p class="text-xs text-ocean-400 mt-2">Reported {{ leak.created_at }}</p>
                 </div>
             </div>

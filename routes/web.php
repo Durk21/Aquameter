@@ -2,18 +2,17 @@
 
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\ComplaintController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LeakReportController;
 use App\Http\Controllers\MeterController;
 use App\Http\Controllers\MeterReadingController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PhotoController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServiceRequestController;
 use App\Http\Controllers\TechnicianController;
 use App\Http\Controllers\WorkOrderController;
-use App\Enums\WorkOrderStatus;
-use App\Models\Account;
-use App\Models\WorkOrder;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -49,30 +48,12 @@ Route::middleware("auth")->group(function () {
     Route::patch("/notifications/read-all", [NotificationController::class, "markAllRead"])->name("notifications.read-all");
 
     Route::get("/bills/{bill}/pdf", [BillController::class, "downloadPdf"])->name("bills.pdf");
+
+    Route::get("/photos/{photo}", [PhotoController::class, "show"])->name("photos.show");
 });
 
 Route::middleware(["auth", "verified", "role:customer"])->prefix("customer")->name("customer.")->group(function () {
-    Route::get("/dashboard", function () {
-        $account = Account::where("user_id", request()->user()->id)->first();
-
-        $activeWorkOrder = $account
-            ? WorkOrder::where("account_id", $account->id)
-                ->whereIn("status", [WorkOrderStatus::NoticeSent, WorkOrderStatus::Approved, WorkOrderStatus::Disputed])
-                ->latest()
-                ->first()
-            : null;
-
-        return Inertia::render("Customer/Dashboard", [
-            "activeWorkOrder" => $activeWorkOrder ? [
-                "id" => $activeWorkOrder->id,
-                "type" => $activeWorkOrder->type->value,
-                "type_label" => $activeWorkOrder->type->label(),
-                "status" => $activeWorkOrder->status->value,
-                "status_label" => $activeWorkOrder->status->label(),
-                "notice_deadline" => $activeWorkOrder->notice_deadline?->toDateString(),
-            ] : null,
-        ]);
-    })->name("dashboard");
+    Route::get("/dashboard", [DashboardController::class, "customer"])->name("dashboard");
 
     Route::get("/meter-readings", [MeterReadingController::class, "index"])->name("meter-readings.index");
     Route::get("/bills", [BillController::class, "index"])->name("bills.index");
@@ -92,9 +73,7 @@ Route::middleware(["auth", "verified", "role:customer"])->prefix("customer")->na
 });
 
 Route::middleware(["auth", "verified", "role:technician"])->prefix("technician")->name("technician.")->group(function () {
-    Route::get("/dashboard", function () {
-        return Inertia::render("Technician/Dashboard");
-    })->name("dashboard");
+    Route::get("/dashboard", [DashboardController::class, "technician"])->name("dashboard");
 
     Route::get("/meter-readings/create", [MeterReadingController::class, "create"])->name("meter-readings.create");
     Route::post("/meter-readings", [MeterReadingController::class, "store"])->name("meter-readings.store");
@@ -105,9 +84,7 @@ Route::middleware(["auth", "verified", "role:technician"])->prefix("technician")
 });
 
 Route::middleware(["auth", "verified", "role:admin"])->prefix("admin")->name("admin.")->group(function () {
-    Route::get("/dashboard", function () {
-        return Inertia::render("Admin/Dashboard");
-    })->name("dashboard");
+    Route::get("/dashboard", [DashboardController::class, "admin"])->name("dashboard");
 
     Route::get("/meters/create", [MeterController::class, "create"])->name("meters.create");
     Route::post("/meters", [MeterController::class, "store"])->name("meters.store");

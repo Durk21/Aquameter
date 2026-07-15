@@ -1,10 +1,15 @@
 <script setup>
 import AppShell from "@/Layouts/AppShell.vue";
+import StatTile from "@/Components/StatTile.vue";
 import { Head, Link, useForm } from "@inertiajs/vue3";
 import { ref } from "vue";
 
 const props = defineProps({
     activeWorkOrder: {
+        type: Object,
+        default: null,
+    },
+    stats: {
         type: Object,
         default: null,
     },
@@ -29,6 +34,13 @@ const bannerStyles = {
     notice_sent: "bg-amber-50 border-amber-200 text-amber-900",
     approved: "bg-red-50 border-red-200 text-red-900",
     disputed: "bg-ocean-50 border-ocean-200 text-ocean-900",
+};
+
+const accountStatusStyles = {
+    active: "bg-emerald-100 text-emerald-800",
+    overdue: "bg-amber-100 text-amber-800",
+    defaulted: "bg-red-100 text-red-800",
+    disconnected: "bg-red-100 text-red-800",
 };
 </script>
 
@@ -100,9 +112,35 @@ const bannerStyles = {
                 </div>
             </div>
 
+            <div v-if="stats" class="bg-white rounded-lg border border-ocean-100 p-5">
+                <div class="flex items-center justify-between mb-1">
+                    <p class="font-semibold text-ocean-900">{{ stats.account_number }}</p>
+                    <span
+                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                        :class="accountStatusStyles[stats.status] || 'bg-ocean-100 text-ocean-800'"
+                    >
+                        {{ stats.status_label }}
+                    </span>
+                </div>
+                <p class="text-sm text-ocean-500">{{ stats.zone }}</p>
+            </div>
+
+            <section v-if="stats">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <StatTile
+                        label="Outstanding (KES)"
+                        :value="stats.outstanding_amount"
+                        :accent="Number(stats.outstanding_amount) > 0 ? 'amber' : 'emerald'"
+                    />
+                    <StatTile label="Next Due" :value="stats.next_due_date || '—'" accent="ocean" />
+                    <StatTile label="Meters" :value="stats.meter_count" accent="ocean" />
+                    <StatTile label="Open Requests" :value="stats.open_complaints + stats.open_requests" accent="indigo" />
+                </div>
+            </section>
+
             <div class="bg-white rounded-lg border border-ocean-100 p-6">
                 <p class="text-ocean-700">
-                    Welcome back. Your account, meter readings, and billing will appear here as Aquameter grows.
+                    Welcome back. Your account, meter readings, and billing appear above.
                 </p>
                 <div class="flex flex-wrap gap-2 mt-4">
                     <Link

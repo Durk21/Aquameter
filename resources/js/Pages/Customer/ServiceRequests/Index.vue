@@ -1,5 +1,6 @@
 <script setup>
 import AppShell from "@/Layouts/AppShell.vue";
+import PhotoGallery from "@/Components/PhotoGallery.vue";
 import { Head, Link } from "@inertiajs/vue3";
 
 defineProps({
@@ -75,6 +76,7 @@ const typeLabels = {
                         </span>
                     </div>
                     <p class="text-sm text-ocean-700 mb-2">{{ sr.description }}</p>
+                    <PhotoGallery :photos="sr.photos" />
                     <p class="text-xs text-ocean-400 mt-2">Submitted {{ sr.created_at }}</p>
                 </div>
             </div>

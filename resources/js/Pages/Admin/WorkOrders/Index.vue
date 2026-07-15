@@ -1,5 +1,6 @@
 <script setup>
 import AppShell from "@/Layouts/AppShell.vue";
+import PhotoGallery from "@/Components/PhotoGallery.vue";
 import { Head, Link } from "@inertiajs/vue3";
 
 defineProps({
@@ -121,6 +122,12 @@ const statusStyles = {
                                 <span v-if="wo.source.request_type" class="font-medium">{{ wo.source.request_type }} — </span>
                                 {{ wo.source.description }}
                                 <span v-if="wo.source.location_notes" class="block text-xs text-ocean-500 mt-1">{{ wo.source.location_notes }}</span>
+                                <PhotoGallery :photos="wo.source.photos" />
+                            </div>
+
+                            <div v-if="wo.evidence_photos && wo.evidence_photos.length > 0" class="mb-2">
+                                <p class="text-xs font-medium text-ocean-500 mb-1">Repair evidence:</p>
+                                <PhotoGallery :photos="wo.evidence_photos" />
                             </div>
 
                             <div class="flex flex-wrap gap-2 mt-2">
@@ -176,19 +183,22 @@ const statusStyles = {
                         No closed work orders yet.
                     </div>
                     <div v-else class="divide-y divide-ocean-100">
-                        <div v-for="wo in history" :key="wo.id" class="flex items-center justify-between gap-3 p-4">
-                            <div>
-                                <p class="font-medium text-ocean-900">
-                                    {{ wo.type_label }} · {{ wo.customer_name }} · {{ wo.account_number }}
-                                </p>
-                                <p class="text-xs text-ocean-500 mt-0.5">{{ wo.zone }}</p>
+                        <div v-for="wo in history" :key="wo.id" class="p-4">
+                            <div class="flex items-center justify-between gap-3">
+                                <div>
+                                    <p class="font-medium text-ocean-900">
+                                        {{ wo.type_label }} · {{ wo.customer_name }} · {{ wo.account_number }}
+                                    </p>
+                                    <p class="text-xs text-ocean-500 mt-0.5">{{ wo.zone }}</p>
+                                </div>
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium shrink-0"
+                                    :class="statusStyles[wo.status] || 'bg-ocean-100 text-ocean-800'"
+                                >
+                                    {{ wo.status_label }}
+                                </span>
                             </div>
-                            <span
-                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium shrink-0"
-                                :class="statusStyles[wo.status] || 'bg-ocean-100 text-ocean-800'"
-                            >
-                                {{ wo.status_label }}
-                            </span>
+                            <PhotoGallery v-if="wo.evidence_photos" :photos="wo.evidence_photos" />
                         </div>
                     </div>
                 </div>
