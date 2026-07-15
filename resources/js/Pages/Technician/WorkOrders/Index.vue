@@ -4,13 +4,21 @@ import { Head, Link, router } from "@inertiajs/vue3";
 import { reactive } from "vue";
 
 const props = defineProps({
-    claimable: {
+    inZone: {
+        type: Array,
+        required: true,
+    },
+    otherZones: {
         type: Array,
         required: true,
     },
     myJobs: {
         type: Array,
         required: true,
+    },
+    myZone: {
+        type: String,
+        default: null,
     },
 });
 
@@ -61,7 +69,7 @@ const statusStyles = {
                             <div class="flex items-start justify-between gap-3 mb-2">
                                 <div>
                                     <p class="font-medium text-ocean-900">{{ wo.type_label }} · {{ wo.account_number }}</p>
-                                    <p class="text-xs text-ocean-500 mt-0.5">{{ wo.customer_name }} · {{ wo.zone }}</p>
+                                    <p class="text-xs text-ocean-500 mt-0.5">{{ wo.customer_name }} · {{ wo.dispatch_zone }}</p>
                                 </div>
                                 <span
                                     class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium shrink-0"
@@ -95,16 +103,22 @@ const statusStyles = {
             </section>
 
             <section>
-                <h3 class="font-semibold text-ocean-900 mb-3">Available Jobs</h3>
+                <h3 class="font-semibold text-ocean-900 mb-3">
+                    In Your Zone
+                    <span v-if="myZone" class="text-ocean-500 font-normal text-sm">({{ myZone }})</span>
+                </h3>
+                <p v-if="!myZone" class="text-sm text-ocean-500 mb-3">
+                    You don't have a zone assigned yet — an admin can set one from the Technicians page. Until then, all jobs appear under Other Zones.
+                </p>
                 <div class="bg-white rounded-lg border border-ocean-100 overflow-hidden">
-                    <div v-if="claimable.length === 0" class="p-6 text-ocean-700 text-sm">
-                        No jobs are currently ready for dispatch.
+                    <div v-if="inZone.length === 0" class="p-6 text-ocean-700 text-sm">
+                        No jobs currently ready for dispatch in your zone.
                     </div>
                     <div v-else class="divide-y divide-ocean-100">
-                        <div v-for="wo in claimable" :key="wo.id" class="flex items-center justify-between gap-3 p-4">
+                        <div v-for="wo in inZone" :key="wo.id" class="flex items-center justify-between gap-3 p-4">
                             <div>
                                 <p class="font-medium text-ocean-900">{{ wo.type_label }} · {{ wo.account_number }}</p>
-                                <p class="text-xs text-ocean-500 mt-0.5">{{ wo.customer_name }} · {{ wo.zone }}</p>
+                                <p class="text-xs text-ocean-500 mt-0.5">{{ wo.customer_name }} · {{ wo.dispatch_zone }}</p>
                                 <p v-if="wo.source" class="text-xs text-ocean-600 mt-1">
                                     <span v-if="wo.source.severity_label">{{ wo.source.severity_label }} severity — </span>
                                     <span v-if="wo.source.request_type">{{ wo.source.request_type }} — </span>
@@ -116,6 +130,39 @@ const statusStyles = {
                                 method="patch"
                                 as="button"
                                 class="shrink-0 inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold bg-ocean-600 text-white hover:bg-ocean-700"
+                            >
+                                Claim
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h3 class="font-semibold text-ocean-900 mb-3">Other Zones</h3>
+                <p class="text-sm text-ocean-500 mb-3">
+                    Not in your zone, but claimable if no one else picks them up.
+                </p>
+                <div class="bg-white rounded-lg border border-ocean-100 overflow-hidden">
+                    <div v-if="otherZones.length === 0" class="p-6 text-ocean-700 text-sm">
+                        No other jobs currently ready for dispatch.
+                    </div>
+                    <div v-else class="divide-y divide-ocean-100">
+                        <div v-for="wo in otherZones" :key="wo.id" class="flex items-center justify-between gap-3 p-4">
+                            <div>
+                                <p class="font-medium text-ocean-900">{{ wo.type_label }} · {{ wo.account_number }}</p>
+                                <p class="text-xs text-ocean-500 mt-0.5">{{ wo.customer_name }} · {{ wo.dispatch_zone }}</p>
+                                <p v-if="wo.source" class="text-xs text-ocean-600 mt-1">
+                                    <span v-if="wo.source.severity_label">{{ wo.source.severity_label }} severity — </span>
+                                    <span v-if="wo.source.request_type">{{ wo.source.request_type }} — </span>
+                                    {{ wo.source.description }}
+                                </p>
+                            </div>
+                            <Link
+                                :href="route('technician.work-orders.claim', wo.id)"
+                                method="patch"
+                                as="button"
+                                class="shrink-0 inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold border border-ocean-300 text-ocean-700 hover:bg-ocean-50"
                             >
                                 Claim
                             </Link>

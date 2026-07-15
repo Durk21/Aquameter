@@ -9,6 +9,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServiceRequestController;
+use App\Http\Controllers\TechnicianController;
 use App\Http\Controllers\WorkOrderController;
 use App\Enums\WorkOrderStatus;
 use App\Models\Account;
@@ -124,6 +125,9 @@ Route::middleware(["auth", "verified", "role:admin"])->prefix("admin")->name("ad
     Route::patch("/work-orders/{workOrder}/sign-off", [WorkOrderController::class, "signOff"])->name("work-orders.sign-off");
     Route::patch("/work-orders/{workOrder}/cancel", [WorkOrderController::class, "cancel"])->name("work-orders.cancel");
     Route::patch("/work-orders/{workOrder}/resolve-dispute", [WorkOrderController::class, "resolveDispute"])->name("work-orders.resolve-dispute");
+
+    Route::get("/technicians", [TechnicianController::class, "index"])->name("technicians.index");
+    Route::patch("/technicians/{technician}/zone", [TechnicianController::class, "updateZone"])->name("technicians.update-zone");
 });
 
 Route::middleware(["auth", "verified", "role:management"])->prefix("management")->name("management.")->group(function () {

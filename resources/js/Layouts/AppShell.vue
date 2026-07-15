@@ -31,6 +31,7 @@ const navByRole = {
         { label: "Bills", route: "admin.bills.index", icon: "clipboard-list" },
         { label: "Complaints", route: "admin.complaints.index", icon: "alert-triangle" },
         { label: "Work Orders", route: "admin.work-orders.index", icon: "shield-check" },
+        { label: "Technicians", route: "admin.technicians.index", icon: "user" },
     ],
     management: [
         { label: "Dashboard", route: "management.dashboard", icon: "home" },

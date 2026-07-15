@@ -77,4 +77,19 @@ class WorkOrder extends Model
     {
         return $this->morphTo();
     }
+
+    /**
+     * The zone this job should be dispatched in. A leak report or
+     * service request carries its own reported zone (where the issue
+     * actually is); disconnection/reconnection route by the account's
+     * home zone.
+     */
+    public function dispatchZone(): ?string
+    {
+        if ($this->sourceable && isset($this->sourceable->zone)) {
+            return $this->sourceable->zone;
+        }
+
+        return $this->account?->zone;
+    }
 }

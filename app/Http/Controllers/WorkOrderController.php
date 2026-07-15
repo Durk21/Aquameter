@@ -117,9 +117,19 @@ class WorkOrderController extends Controller
             ->get()
             ->map(fn (WorkOrder $workOrder) => $this->summarizeWorkOrder($workOrder));
 
+        $inZone = $user->zone
+            ? $claimable->filter(fn (array $wo) => $wo["dispatch_zone"] === $user->zone)->values()
+            : collect();
+
+        $otherZones = $user->zone
+            ? $claimable->reject(fn (array $wo) => $wo["dispatch_zone"] === $user->zone)->values()
+            : $claimable;
+
         return Inertia::render("Technician/WorkOrders/Index", [
-            "claimable" => $claimable,
+            "inZone" => $inZone,
+            "otherZones" => $otherZones,
             "myJobs" => $myJobs,
+            "myZone" => $user->zone,
         ]);
     }
 
@@ -189,6 +199,7 @@ class WorkOrderController extends Controller
             "account_number" => $workOrder->account->account_number,
             "customer_name" => $workOrder->account->user->name,
             "zone" => $workOrder->account->zone,
+            "dispatch_zone" => $workOrder->dispatchZone(),
             "notice_deadline" => $workOrder->notice_deadline?->toDateString(),
             "notice_elapsed" => $workOrder->notice_deadline ? $workOrder->notice_deadline->isPast() : false,
             "dispute_reason" => $workOrder->dispute_reason,
