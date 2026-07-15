@@ -108,9 +108,7 @@ Route::middleware(["auth", "verified", "role:admin"])->prefix("admin")->name("ad
 });
 
 Route::middleware(["auth", "verified", "role:management"])->prefix("management")->name("management.")->group(function () {
-    Route::get("/dashboard", function () {
-        return Inertia::render("Management/Dashboard");
-    })->name("dashboard");
+    Route::get("/dashboard", [DashboardController::class, "management"])->name("dashboard");
 });
 
 require __DIR__."/auth.php";

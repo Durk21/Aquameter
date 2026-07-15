@@ -127,4 +127,15 @@ return [
     "max_photos_per_upload" => (int) env("UTILITY_MAX_PHOTOS_PER_UPLOAD", 3),
     "max_photo_size_kb" => (int) env("UTILITY_MAX_PHOTO_SIZE_KB", 2048),
     "photo_mimes" => ["jpeg", "jpg", "png", "webp"],
+
+    /*
+    |--------------------------------------------------------------------
+    | Escalation Threshold
+    |--------------------------------------------------------------------
+    | A work order still awaiting technician claim, or a complaint still
+    | awaiting admin review, longer than this many days is flagged as
+    | stalled on the management dashboard.
+    */
+
+    "stall_threshold_days" => (int) env("UTILITY_STALL_THRESHOLD_DAYS", 3),
 ];

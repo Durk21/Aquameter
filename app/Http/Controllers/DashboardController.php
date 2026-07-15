@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\AccountStatus;
 use App\Enums\BillStatus;
 use App\Enums\ComplaintStatus;
 use App\Enums\WorkOrderStatus;
+use App\Enums\WorkOrderType;
 use App\Models\Account;
 use App\Models\Bill;
 use App\Models\Complaint;
@@ -137,5 +139,116 @@ class DashboardController extends Controller
             ] : null,
             "stats" => $stats,
         ]);
+    }
+
+    public function management(): Response
+    {
+        $startOfMonth = now()->startOfMonth();
+        $stallThreshold = now()->subDays((int) config("utility.stall_threshold_days"));
+
+        $closedWorkOrders = WorkOrder::whereIn("status", [WorkOrderStatus::Completed, WorkOrderStatus::Cancelled])->count();
+        $completedWorkOrders = WorkOrder::where("status", WorkOrderStatus::Completed)->count();
+
+        $avgResolutionDays = self::averageDaysBetween(
+            WorkOrder::where("status", WorkOrderStatus::Completed)->get(["created_at", "completed_at"]),
+            "created_at",
+            "completed_at",
+        );
+
+        $avgDaysDisconnected = self::averageDaysBetween(
+            WorkOrder::where("type", WorkOrderType::Reconnection)
+                ->where("status", WorkOrderStatus::Completed)
+                ->get()
+                ->map(function (WorkOrder $reconnection) {
+                    $disconnection = WorkOrder::where("account_id", $reconnection->account_id)
+                        ->where("type", WorkOrderType::Disconnection)
+                        ->where("status", WorkOrderStatus::Completed)
+                        ->where("completed_at", "<=", $reconnection->completed_at)
+                        ->orderByDesc("completed_at")
+                        ->first();
+
+                    return $disconnection ? (object) [
+                        "start" => $disconnection->completed_at,
+                        "end" => $reconnection->completed_at,
+                    ] : null;
+                })
+                ->filter(),
+            "start",
+            "end",
+        );
+
+        $byType = WorkOrder::selectRaw("type, count(*) as count")
+            ->whereNotIn("status", [WorkOrderStatus::Cancelled])
+            ->groupBy("type")
+            ->get()
+            ->map(fn (WorkOrder $row) => [
+                "type" => $row->type->value,
+                "label" => $row->type->label(),
+                "count" => $row->count,
+            ]);
+
+        $byZone = WorkOrder::whereNotIn("status", [WorkOrderStatus::Cancelled])
+            ->with(["sourceable", "account"])
+            ->get()
+            ->groupBy(fn (WorkOrder $workOrder) => $workOrder->dispatchZone() ?? "Unassigned")
+            ->map(fn ($group, $zone) => ["zone" => $zone, "count" => $group->count()])
+            ->sortByDesc("count")
+            ->values();
+
+        return Inertia::render("Management/Dashboard", [
+            "stats" => [
+                "active_pipeline" => WorkOrder::whereNotIn("status", [WorkOrderStatus::Completed, WorkOrderStatus::Cancelled])->count(),
+                "completed_this_month" => WorkOrder::where("status", WorkOrderStatus::Completed)
+                    ->where("completed_at", ">=", $startOfMonth)
+                    ->count(),
+                "avg_resolution_days" => $avgResolutionDays,
+                "completion_rate" => $closedWorkOrders > 0 ? round(($completedWorkOrders / $closedWorkOrders) * 100, 1) : null,
+                "currently_disconnected" => Account::where("status", AccountStatus::Disconnected)->count(),
+                "disconnections_this_month" => WorkOrder::where("type", WorkOrderType::Disconnection)
+                    ->where("status", WorkOrderStatus::Completed)
+                    ->where("completed_at", ">=", $startOfMonth)
+                    ->count(),
+                "reconnections_this_month" => WorkOrder::where("type", WorkOrderType::Reconnection)
+                    ->where("status", WorkOrderStatus::Completed)
+                    ->where("completed_at", ">=", $startOfMonth)
+                    ->count(),
+                "avg_days_disconnected" => $avgDaysDisconnected,
+                "open_complaints" => Complaint::whereIn("status", self::OPEN_COMPLAINT_STATUSES)->count(),
+                "resolved_complaints_this_month" => Complaint::where("status", ComplaintStatus::Resolved)
+                    ->where("resolved_at", ">=", $startOfMonth)
+                    ->count(),
+                "avg_complaint_resolution_days" => self::averageDaysBetween(
+                    Complaint::whereNotNull("resolved_at")->get(["created_at", "resolved_at"]),
+                    "created_at",
+                    "resolved_at",
+                ),
+                "leak_reports_this_month" => LeakReport::where("created_at", ">=", $startOfMonth)->count(),
+                "stalled_work_orders" => WorkOrder::where("status", WorkOrderStatus::Approved)
+                    ->where("created_at", "<=", $stallThreshold)
+                    ->count(),
+                "stalled_complaints" => Complaint::whereIn("status", self::OPEN_COMPLAINT_STATUSES)
+                    ->where("created_at", "<=", $stallThreshold)
+                    ->count(),
+            ],
+            "byType" => $byType,
+            "byZone" => $byZone,
+            "stallThresholdDays" => (int) config("utility.stall_threshold_days"),
+        ]);
+    }
+
+    /**
+     * Average whole-day gap between two timestamp fields across a
+     * collection, or null if there's nothing to average — never 0,
+     * which would misreport "instant" when there's simply no data yet.
+     */
+    protected static function averageDaysBetween($records, string $startField, string $endField): ?float
+    {
+        $records = collect($records)->filter(fn ($record) => $record->{$startField} && $record->{$endField});
+
+        if ($records->isEmpty()) {
+            return null;
+        }
+
+        return round($records->avg(fn ($record) => $record->{$startField}->diffInHours($record->{$endField}) / 24), 1);
     }
 }
