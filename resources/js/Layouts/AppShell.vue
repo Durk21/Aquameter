@@ -21,12 +21,14 @@ const navByRole = {
     technician: [
         { label: "Dashboard", route: "technician.dashboard", icon: "home" },
         { label: "Record Reading", route: "technician.meter-readings.create", icon: "gauge" },
+        { label: "Work Orders", route: "technician.work-orders.index", icon: "shield-check" },
     ],
     admin: [
         { label: "Dashboard", route: "admin.dashboard", icon: "home" },
         { label: "Register Meter", route: "admin.meters.create", icon: "wrench" },
         { label: "Bills", route: "admin.bills.index", icon: "clipboard-list" },
         { label: "Complaints", route: "admin.complaints.index", icon: "alert-triangle" },
+        { label: "Work Orders", route: "admin.work-orders.index", icon: "shield-check" },
     ],
     management: [
         { label: "Dashboard", route: "management.dashboard", icon: "home" },

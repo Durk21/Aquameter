@@ -7,6 +7,10 @@ use App\Http\Controllers\MeterReadingController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\WorkOrderController;
+use App\Enums\WorkOrderStatus;
+use App\Models\Account;
+use App\Models\WorkOrder;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -46,7 +50,25 @@ Route::middleware("auth")->group(function () {
 
 Route::middleware(["auth", "verified", "role:customer"])->prefix("customer")->name("customer.")->group(function () {
     Route::get("/dashboard", function () {
-        return Inertia::render("Customer/Dashboard");
+        $account = Account::where("user_id", request()->user()->id)->first();
+
+        $activeWorkOrder = $account
+            ? WorkOrder::where("account_id", $account->id)
+                ->whereIn("status", [WorkOrderStatus::NoticeSent, WorkOrderStatus::Approved, WorkOrderStatus::Disputed])
+                ->latest()
+                ->first()
+            : null;
+
+        return Inertia::render("Customer/Dashboard", [
+            "activeWorkOrder" => $activeWorkOrder ? [
+                "id" => $activeWorkOrder->id,
+                "type" => $activeWorkOrder->type->value,
+                "type_label" => $activeWorkOrder->type->label(),
+                "status" => $activeWorkOrder->status->value,
+                "status_label" => $activeWorkOrder->status->label(),
+                "notice_deadline" => $activeWorkOrder->notice_deadline?->toDateString(),
+            ] : null,
+        ]);
     })->name("dashboard");
 
     Route::get("/meter-readings", [MeterReadingController::class, "index"])->name("meter-readings.index");
@@ -54,6 +76,8 @@ Route::middleware(["auth", "verified", "role:customer"])->prefix("customer")->na
     Route::get("/complaints", [ComplaintController::class, "index"])->name("complaints.index");
     Route::get("/complaints/create", [ComplaintController::class, "create"])->name("complaints.create");
     Route::post("/complaints", [ComplaintController::class, "store"])->name("complaints.store");
+
+    Route::post("/work-orders/{workOrder}/dispute", [WorkOrderController::class, "dispute"])->name("work-orders.dispute");
 });
 
 Route::middleware(["auth", "verified", "role:technician"])->prefix("technician")->name("technician.")->group(function () {
@@ -63,6 +87,10 @@ Route::middleware(["auth", "verified", "role:technician"])->prefix("technician")
 
     Route::get("/meter-readings/create", [MeterReadingController::class, "create"])->name("meter-readings.create");
     Route::post("/meter-readings", [MeterReadingController::class, "store"])->name("meter-readings.store");
+
+    Route::get("/work-orders", [WorkOrderController::class, "technicianIndex"])->name("work-orders.index");
+    Route::patch("/work-orders/{workOrder}/claim", [WorkOrderController::class, "claim"])->name("work-orders.claim");
+    Route::patch("/work-orders/{workOrder}/complete", [WorkOrderController::class, "complete"])->name("work-orders.complete");
 });
 
 Route::middleware(["auth", "verified", "role:admin"])->prefix("admin")->name("admin.")->group(function () {
@@ -80,6 +108,12 @@ Route::middleware(["auth", "verified", "role:admin"])->prefix("admin")->name("ad
     Route::get("/bills", [BillController::class, "adminIndex"])->name("bills.index");
     Route::get("/bills/{bill}/payments/create", [PaymentController::class, "create"])->name("payments.create");
     Route::post("/bills/{bill}/payments", [PaymentController::class, "store"])->name("payments.store");
+
+    Route::get("/work-orders", [WorkOrderController::class, "adminIndex"])->name("work-orders.index");
+    Route::post("/accounts/{account}/disconnection-notice", [WorkOrderController::class, "initiateDisconnection"])->name("work-orders.initiate-disconnection");
+    Route::patch("/work-orders/{workOrder}/sign-off", [WorkOrderController::class, "signOff"])->name("work-orders.sign-off");
+    Route::patch("/work-orders/{workOrder}/cancel", [WorkOrderController::class, "cancel"])->name("work-orders.cancel");
+    Route::patch("/work-orders/{workOrder}/resolve-dispute", [WorkOrderController::class, "resolveDispute"])->name("work-orders.resolve-dispute");
 });
 
 Route::middleware(["auth", "verified", "role:management"])->prefix("management")->name("management.")->group(function () {

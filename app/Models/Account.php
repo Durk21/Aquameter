@@ -41,8 +41,14 @@ class Account extends Model
     {
         return $this->hasMany(Bill::class);
     }
-public function complaints(): HasMany
-{
-    return $this->hasMany(Complaint::class);
-}
+
+    public function complaints(): HasMany
+    {
+        return $this->hasMany(Complaint::class);
+    }
+
+    public function workOrders(): HasMany
+    {
+        return $this->hasMany(WorkOrder::class);
+    }
 }

@@ -1,6 +1,6 @@
 <script setup>
 import AppShell from "@/Layouts/AppShell.vue";
-import { Head } from "@inertiajs/vue3";
+import { Head, Link } from "@inertiajs/vue3";
 </script>
 
 <template>
@@ -18,6 +18,12 @@ import { Head } from "@inertiajs/vue3";
                 <p class="text-ocean-700">
                     Register meters, review complaints, and manage disconnection sign-offs from here.
                 </p>
+                <Link
+                    :href="route('admin.work-orders.index')"
+                    class="inline-flex items-center mt-4 px-3 py-1.5 rounded-md text-xs font-semibold bg-ocean-600 text-white hover:bg-ocean-700"
+                >
+                    Go to Work Orders
+                </Link>
             </div>
         </div>
     </AppShell>

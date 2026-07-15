@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\AccountStatus;
 use App\Enums\BillStatus;
+use App\Enums\WorkOrderType;
 use App\Models\Bill;
 use App\Models\Payment;
+use App\Services\WorkOrderService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -73,10 +76,46 @@ class PaymentController extends Controller
             $bill->status = BillStatus::Paid;
             $bill->paid_at = $validated["paid_at"];
             $bill->save();
+
+            $this->settleAccountStatus($bill, $request);
         });
 
         return redirect()
             ->route("admin.bills.index")
             ->with("status", "Payment recorded. Bill marked as paid.");
+    }
+
+    /**
+     * A fully paid bill clears an Overdue/Defaulted account back to
+     * Active once nothing else is outstanding. A Disconnected account
+     * is never flipped directly — it gets its own reconnection work
+     * order, dispatched to a technician like any other job.
+     */
+    protected function settleAccountStatus(Bill $bill, Request $request): void
+    {
+        $account = $bill->account;
+
+        $hasOutstanding = Bill::where("account_id", $account->id)
+            ->whereIn("status", [BillStatus::Overdue, BillStatus::Defaulted])
+            ->where("id", "!=", $bill->id)
+            ->exists();
+
+        if ($hasOutstanding) {
+            return;
+        }
+
+        if ($account->status === AccountStatus::Disconnected) {
+            if (! WorkOrderService::hasOpenWorkOrder($account, WorkOrderType::Reconnection)) {
+                WorkOrderService::initiateReconnection($account, $request->user(), $bill);
+            }
+
+            return;
+        }
+
+        if (in_array($account->status, [AccountStatus::Overdue, AccountStatus::Defaulted], true)) {
+            $account->status = AccountStatus::Active;
+            $account->defaulted_at = null;
+            $account->save();
+        }
     }
 }

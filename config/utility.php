@@ -69,4 +69,17 @@ return [
         "mpesa",
         "bank_transfer",
     ],
+
+    /*
+    |--------------------------------------------------------------------
+    | Disconnection Flow
+    |--------------------------------------------------------------------
+    | Grace period (in days, after a bill's due date) before an overdue
+    | bill is considered defaulted. Notice period (in days) a customer
+    | has after a disconnection notice is issued before an admin may
+    | sign off on dispatching the disconnection to a technician.
+    */
+
+    "default_grace_days" => (int) env("UTILITY_DEFAULT_GRACE_DAYS", 14),
+    "disconnection_notice_days" => (int) env("UTILITY_DISCONNECTION_NOTICE_DAYS", 7),
 ];

@@ -76,7 +76,7 @@ const statusStyles = {
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-sm text-right">
-                                    
+                                    <a
                                         :href="route('bills.pdf', bill.id)"
                                         class="text-ocean-600 hover:text-ocean-800 font-medium"
                                     >
