@@ -5,18 +5,30 @@ import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm } from "@inertiajs/vue3";
+import { computed } from "vue";
 
-defineProps({
+const props = defineProps({
     meters: {
+        type: Array,
+        required: true,
+    },
+    zones: {
         type: Array,
         required: true,
     },
 });
 
 const form = useForm({
+    scope: "meter",
     meter_id: "",
+    zone: "",
     scheduled_for: new Date().toISOString().split("T")[0],
     description: "",
+});
+
+const meterCountForZone = computed(() => {
+    if (!form.zone) return 0;
+    return props.meters.filter((m) => m.zone === form.zone).length;
 });
 
 const submit = () => {
@@ -44,6 +56,30 @@ const submit = () => {
             <div class="bg-white rounded-lg border border-ocean-100 p-6">
                 <form @submit.prevent="submit">
                     <div>
+                        <InputLabel value="Scope" />
+                        <div class="mt-1 flex gap-2">
+                            <label
+                                class="flex-1 text-center px-3 py-2 rounded-md border text-sm font-medium cursor-pointer"
+                                :class="form.scope === 'meter'
+                                    ? 'bg-ocean-600 border-ocean-600 text-white'
+                                    : 'border-ocean-300 text-ocean-700 hover:bg-ocean-50'"
+                            >
+                                <input type="radio" v-model="form.scope" value="meter" class="sr-only" />
+                                Single Meter
+                            </label>
+                            <label
+                                class="flex-1 text-center px-3 py-2 rounded-md border text-sm font-medium cursor-pointer"
+                                :class="form.scope === 'zone'
+                                    ? 'bg-ocean-600 border-ocean-600 text-white'
+                                    : 'border-ocean-300 text-ocean-700 hover:bg-ocean-50'"
+                            >
+                                <input type="radio" v-model="form.scope" value="zone" class="sr-only" />
+                                Entire Zone
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mt-4" v-if="form.scope === 'meter'">
                         <InputLabel for="meter_id" value="Meter" />
                         <select
                             id="meter_id"
@@ -57,6 +93,23 @@ const submit = () => {
                             </option>
                         </select>
                         <InputError class="mt-2" :message="form.errors.meter_id" />
+                    </div>
+
+                    <div class="mt-4" v-else>
+                        <InputLabel for="zone" value="Zone" />
+                        <select
+                            id="zone"
+                            v-model="form.zone"
+                            required
+                            class="mt-1 block w-full border-ocean-300 focus:border-ocean-500 focus:ring-ocean-500 rounded-md shadow-sm"
+                        >
+                            <option value="" disabled>Select a zone</option>
+                            <option v-for="z in zones" :key="z" :value="z">{{ z }}</option>
+                        </select>
+                        <p v-if="form.zone" class="mt-1 text-xs text-ocean-500">
+                            This will schedule maintenance for {{ meterCountForZone }} meter(s) in {{ form.zone }}.
+                        </p>
+                        <InputError class="mt-2" :message="form.errors.zone" />
                     </div>
 
                     <div class="mt-4">
