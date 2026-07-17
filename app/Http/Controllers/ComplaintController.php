@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ComplaintStatus;
 use App\Models\Account;
 use App\Models\Bill;
 use App\Models\Complaint;
@@ -108,7 +109,7 @@ class ComplaintController extends Controller
         }
 
         $complaints = Complaint::with(["account.user", "bill"])
-            ->orderByRaw("FIELD(status, 'submitted', 'under_review', 'resolved', 'rejected')")
+            ->orderByRaw($this->statusSortOrder())
             ->orderByDesc("created_at")
             ->get()
             ->map(function (Complaint $complaint) {
@@ -180,5 +181,20 @@ class ComplaintController extends Controller
         return redirect()
             ->route("admin.complaints.index")
             ->with("status", "Complaint updated.");
+    }
+
+    /**
+     * Open complaints first, most recently created within each status.
+     * Built from ComplaintStatus's own declared case order via a
+     * portable SQL CASE expression — MySQL's FIELD() isn't available
+     * on SQLite, which silently broke this query in local dev/tests.
+     */
+    protected function statusSortOrder(): string
+    {
+        $whens = collect(ComplaintStatus::cases())
+            ->map(fn (ComplaintStatus $status, int $priority) => "WHEN '{$status->value}' THEN {$priority}")
+            ->implode(" ");
+
+        return "CASE status {$whens} ELSE 99 END";
     }
 }
