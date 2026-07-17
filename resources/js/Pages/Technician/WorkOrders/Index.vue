@@ -76,6 +76,7 @@ const statusStyles = {
                                 <div>
                                     <p class="font-medium text-ocean-900">{{ wo.type_label }} · {{ wo.account_number }}</p>
                                     <p class="text-xs text-ocean-500 mt-0.5">{{ wo.customer_name }} · {{ wo.dispatch_zone }}</p>
+                                    <p v-if="wo.phone" class="text-xs text-ocean-700 font-medium mt-0.5">{{ wo.phone }}</p>
                                 </div>
                                 <span
                                     class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium shrink-0"

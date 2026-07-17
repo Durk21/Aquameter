@@ -67,7 +67,7 @@ const upcoming = computed(() => props.schedules.filter((s) =>
                     <div v-for="s in overdue" :key="s.id" class="flex items-center justify-between gap-3 p-4">
                         <div>
                             <p class="font-medium text-ocean-900">{{ s.meter_number }} · {{ s.customer_name }} ({{ s.account_number }})</p>
-                            <p class="text-xs text-ocean-500 mt-0.5">{{ s.zone }} · Was due {{ s.scheduled_for }}</p>
+                            <p class="text-xs text-ocean-500 mt-0.5">{{ s.zone }} · Was due {{ s.scheduled_for }}<span v-if="s.phone"> · {{ s.phone }}</span></p>
                             <p class="text-sm text-ocean-700 mt-1">{{ s.description }}</p>
                         </div>
                         <span
@@ -90,7 +90,7 @@ const upcoming = computed(() => props.schedules.filter((s) =>
                         <div v-for="s in thisWeek" :key="s.id" class="flex items-center justify-between gap-3 p-4">
                             <div>
                                 <p class="font-medium text-ocean-900">{{ s.meter_number }} · {{ s.customer_name }} ({{ s.account_number }})</p>
-                                <p class="text-xs text-ocean-500 mt-0.5">{{ s.zone }} · {{ s.scheduled_for }}</p>
+                                <p class="text-xs text-ocean-500 mt-0.5">{{ s.zone }} · {{ s.scheduled_for }}<span v-if="s.phone"> · {{ s.phone }}</span></p>
                                 <p class="text-sm text-ocean-700 mt-1">{{ s.description }}</p>
                             </div>
                             <span
@@ -114,7 +114,7 @@ const upcoming = computed(() => props.schedules.filter((s) =>
                         <div v-for="s in upcoming" :key="s.id" class="flex items-center justify-between gap-3 p-4">
                             <div>
                                 <p class="font-medium text-ocean-900">{{ s.meter_number }} · {{ s.customer_name }} ({{ s.account_number }})</p>
-                                <p class="text-xs text-ocean-500 mt-0.5">{{ s.zone }} · {{ s.scheduled_for }}</p>
+                                <p class="text-xs text-ocean-500 mt-0.5">{{ s.zone }} · {{ s.scheduled_for }}<span v-if="s.phone"> · {{ s.phone }}</span></p>
                                 <p class="text-sm text-ocean-700 mt-1">{{ s.description }}</p>
                             </div>
                             <span

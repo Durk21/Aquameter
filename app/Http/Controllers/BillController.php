@@ -55,6 +55,7 @@ class BillController extends Controller
                     "id" => $bill->id,
                     "customer_name" => $bill->account->user->name,
                     "account_number" => $bill->account->account_number,
+                    "phone" => $bill->account->phone,
                     "units_consumed" => $bill->units_consumed,
                     "amount" => $bill->amount,
                     "status" => $bill->status->value,

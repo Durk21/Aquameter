@@ -29,6 +29,7 @@ class MaintenanceController extends Controller
                 "meter_number" => $schedule->meter->meter_number,
                 "account_number" => $schedule->account->account_number,
                 "customer_name" => $schedule->account->user->name,
+                "phone" => $schedule->account->phone,
                 "zone" => $schedule->account->zone,
                 "scheduled_for" => $schedule->scheduled_for->toDateString(),
                 "description" => $schedule->description,

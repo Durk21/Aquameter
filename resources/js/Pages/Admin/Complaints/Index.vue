@@ -47,7 +47,7 @@ const statusStyles = {
                         <div>
                             <h3 class="font-semibold text-ocean-900">{{ complaint.subject }}</h3>
                             <p class="text-xs text-ocean-500 mt-0.5">
-                                {{ complaint.customer_name }} · {{ complaint.account_number }}
+                                {{ complaint.customer_name }} · {{ complaint.account_number }}<span v-if="complaint.phone"> · {{ complaint.phone }}</span>
                             </p>
                         </div>
                         <span

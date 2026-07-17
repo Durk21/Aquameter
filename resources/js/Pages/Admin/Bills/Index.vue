@@ -54,7 +54,7 @@ const statusStyles = {
                                 <td class="px-6 py-4 text-sm text-ocean-900">
                                     {{ bill.customer_name }}
                                     <span class="block text-xs text-ocean-500" style="font-family: 'JetBrains Mono', monospace;">
-                                        {{ bill.account_number }}
+                                        {{ bill.account_number }}<span v-if="bill.phone"> · {{ bill.phone }}</span>
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-sm text-ocean-900" style="font-family: 'JetBrains Mono', monospace;">

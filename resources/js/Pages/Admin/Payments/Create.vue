@@ -45,7 +45,9 @@ const submit = () => {
             </h1>
 
             <div class="bg-white rounded-lg border border-ocean-100 p-6 mb-6">
-                <p class="text-sm text-ocean-500 mb-1">{{ bill.customer_name }} · {{ bill.account_number }}</p>
+                <p class="text-sm text-ocean-500 mb-1">
+                    {{ bill.customer_name }} · {{ bill.account_number }}<span v-if="bill.phone"> · {{ bill.phone }}</span>
+                </p>
                 <p class="text-2xl font-semibold text-ocean-900" style="font-family: 'JetBrains Mono', monospace;">
                     KES {{ bill.amount }}
                 </p>

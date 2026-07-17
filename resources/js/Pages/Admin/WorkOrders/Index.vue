@@ -71,6 +71,7 @@ const statusStyles = {
                                 <p class="text-xs text-ocean-500 mt-0.5">
                                     {{ account.zone }} · Outstanding KES {{ account.outstanding_amount }} · Defaulted {{ account.defaulted_at }}
                                 </p>
+                                <p v-if="account.phone" class="text-xs text-ocean-500 mt-0.5">{{ account.phone }}</p>
                             </div>
                             <Link
                                 :href="route('admin.work-orders.initiate-disconnection', account.id)"
@@ -99,7 +100,9 @@ const statusStyles = {
                                     <p class="font-medium text-ocean-900">
                                         {{ wo.type_label }} · {{ wo.customer_name }} · {{ wo.account_number }}
                                     </p>
-                                    <p class="text-xs text-ocean-500 mt-0.5">{{ wo.zone }} · Opened {{ wo.created_at }}</p>
+                                    <p class="text-xs text-ocean-500 mt-0.5">
+                                        {{ wo.zone }} · Opened {{ wo.created_at }}<span v-if="wo.phone"> · {{ wo.phone }}</span>
+                                    </p>
                                 </div>
                                 <span
                                     class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium shrink-0"
@@ -190,7 +193,7 @@ const statusStyles = {
                                     <p class="font-medium text-ocean-900">
                                         {{ wo.type_label }} · {{ wo.customer_name }} · {{ wo.account_number }}
                                     </p>
-                                    <p class="text-xs text-ocean-500 mt-0.5">{{ wo.zone }}</p>
+                                    <p class="text-xs text-ocean-500 mt-0.5">{{ wo.zone }}<span v-if="wo.phone"> · {{ wo.phone }}</span></p>
                                 </div>
                                 <span
                                     class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium shrink-0"

@@ -53,8 +53,13 @@ const submit = () => {
                         {{ complaint.status_label }}
                     </span>
                 </div>
-                <p class="text-sm text-ocean-500 mb-4">
+                <p class="text-sm text-ocean-500 mb-1">
                     {{ complaint.customer_name }} · {{ complaint.account_number }} · Submitted {{ complaint.created_at }}
+                </p>
+                <p v-if="complaint.phone || complaint.alternate_email" class="text-sm text-ocean-500 mb-4">
+                    <span v-if="complaint.phone">{{ complaint.phone }}</span>
+                    <span v-if="complaint.phone && complaint.alternate_email"> · </span>
+                    <span v-if="complaint.alternate_email">{{ complaint.alternate_email }}</span>
                 </p>
                 <p class="text-ocean-700 mb-4">{{ complaint.description }}</p>
                 <p v-if="complaint.bill_amount" class="text-sm text-ocean-700" style="font-family: 'JetBrains Mono', monospace;">

@@ -198,6 +198,7 @@ class WorkOrderController extends Controller
             "id" => $account->id,
             "account_number" => $account->account_number,
             "customer_name" => $account->user->name,
+            "phone" => $account->phone,
             "zone" => $account->zone,
             "defaulted_at" => $account->defaulted_at?->toDateString(),
             "outstanding_amount" => $account->bills()
@@ -216,6 +217,7 @@ class WorkOrderController extends Controller
             "status_label" => $workOrder->status->label(),
             "account_number" => $workOrder->account->account_number,
             "customer_name" => $workOrder->account->user->name,
+            "phone" => $workOrder->account->phone,
             "zone" => $workOrder->account->zone,
             "dispatch_zone" => $workOrder->dispatchZone(),
             "notice_deadline" => $workOrder->notice_deadline?->toDateString(),

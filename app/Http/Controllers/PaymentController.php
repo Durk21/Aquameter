@@ -36,6 +36,7 @@ class PaymentController extends Controller
                 "status" => $bill->status->value,
                 "customer_name" => $bill->account->user->name,
                 "account_number" => $bill->account->account_number,
+                "phone" => $bill->account->phone,
             ],
             "paymentMethods" => config("utility.payment_methods"),
         ]);
