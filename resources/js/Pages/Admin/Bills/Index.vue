@@ -79,12 +79,19 @@ const statusStyles = {
                                     </Link>
                                     <span v-else class="text-emerald-600 text-sm font-medium">Paid</span>
                                 </td>
-                                <td class="px-6 py-4 text-sm text-right">
+                                <td class="px-6 py-4 text-sm text-right whitespace-nowrap">
                                     <a
                                         :href="route('bills.pdf', bill.id)"
                                         class="text-ocean-600 hover:text-ocean-800 font-medium"
                                     >
                                         Download PDF
+                                    </a>
+                                    <a
+                                        v-if="bill.payment_id"
+                                        :href="route('payments.receipt', bill.payment_id)"
+                                        class="ml-3 text-ocean-600 hover:text-ocean-800 font-medium"
+                                    >
+                                        Receipt
                                     </a>
                                 </td>
                             </tr>

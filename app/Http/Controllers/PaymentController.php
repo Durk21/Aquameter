@@ -7,6 +7,7 @@ use App\Enums\BillStatus;
 use App\Enums\WorkOrderType;
 use App\Models\Bill;
 use App\Models\Payment;
+use App\Services\PaymentReceiptPdfService;
 use App\Services\WorkOrderService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class PaymentController extends Controller
 {
@@ -84,6 +86,15 @@ class PaymentController extends Controller
         return redirect()
             ->route("admin.bills.index")
             ->with("status", "Payment recorded. Bill marked as paid.");
+    }
+
+    public function downloadReceipt(Payment $payment): BinaryFileResponse
+    {
+        Gate::authorize("view", $payment);
+
+        $path = PaymentReceiptPdfService::generate($payment);
+
+        return response()->download($path, "aquameter-receipt-{$payment->id}.pdf")->deleteFileAfterSend();
     }
 
     /**

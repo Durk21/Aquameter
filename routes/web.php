@@ -53,6 +53,7 @@ Route::middleware("auth")->group(function () {
     Route::patch("/notifications/read-all", [NotificationController::class, "markAllRead"])->name("notifications.read-all");
 
     Route::get("/bills/{bill}/pdf", [BillController::class, "downloadPdf"])->name("bills.pdf");
+    Route::get("/payments/{payment}/receipt", [PaymentController::class, "downloadReceipt"])->name("payments.receipt");
 
     Route::get("/photos/{photo}", [PhotoController::class, "show"])->name("photos.show");
 
