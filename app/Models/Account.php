@@ -20,6 +20,8 @@ class Account extends Model
         "zone",
         "status",
         "defaulted_at",
+        "phone",
+        "alternate_email",
     ];
 
     protected $casts = [

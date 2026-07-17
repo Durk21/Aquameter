@@ -14,7 +14,7 @@ class ComplaintStatusUpdated extends Notification
 
     public function via(object $notifiable): array
     {
-        return ["mail", "database"];
+        return $notifiable->wantsEmailFor("complaint_updates") ? ["mail", "database"] : ["database"];
     }
 
     public function toMail(object $notifiable): MailMessage

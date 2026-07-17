@@ -1,6 +1,8 @@
 <script setup>
 import AppShell from "@/Layouts/AppShell.vue";
 import DeleteUserForm from "./Partials/DeleteUserForm.vue";
+import NotificationPreferencesForm from "./Partials/NotificationPreferencesForm.vue";
+import UpdateContactInfoForm from "./Partials/UpdateContactInfoForm.vue";
 import UpdatePasswordForm from "./Partials/UpdatePasswordForm.vue";
 import UpdateProfileInformationForm from "./Partials/UpdateProfileInformationForm.vue";
 import { Head } from "@inertiajs/vue3";
@@ -11,6 +13,18 @@ defineProps({
     },
     status: {
         type: String,
+    },
+    account: {
+        type: Object,
+        default: null,
+    },
+    notificationCategories: {
+        type: Object,
+        default: null,
+    },
+    notificationPreferences: {
+        type: Object,
+        default: null,
     },
 });
 </script>
@@ -34,6 +48,18 @@ defineProps({
                 <UpdateProfileInformationForm
                     :must-verify-email="mustVerifyEmail"
                     :status="status"
+                    class="max-w-xl"
+                />
+            </div>
+
+            <div v-if="account" class="bg-white p-4 sm:p-8 rounded-lg border border-ocean-100">
+                <UpdateContactInfoForm :account="account" class="max-w-xl" />
+            </div>
+
+            <div v-if="notificationCategories" class="bg-white p-4 sm:p-8 rounded-lg border border-ocean-100">
+                <NotificationPreferencesForm
+                    :categories="notificationCategories"
+                    :preferences="notificationPreferences"
                     class="max-w-xl"
                 />
             </div>

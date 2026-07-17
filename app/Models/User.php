@@ -28,6 +28,18 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'notification_preferences' => 'array',
         ];
+    }
+
+    /**
+     * Whether this user wants email delivery for the given notification
+     * category. Opt-out, not opt-in — a category with no stored
+     * preference defaults to enabled so nobody misses something
+     * important just because they never visited their profile.
+     */
+    public function wantsEmailFor(string $category): bool
+    {
+        return (bool) ($this->notification_preferences[$category] ?? true);
     }
 }

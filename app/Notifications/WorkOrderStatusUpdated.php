@@ -16,7 +16,7 @@ class WorkOrderStatusUpdated extends Notification
 
     public function via(object $notifiable): array
     {
-        return ["mail", "database"];
+        return $notifiable->wantsEmailFor("work_order_updates") ? ["mail", "database"] : ["database"];
     }
 
     public function toMail(object $notifiable): MailMessage

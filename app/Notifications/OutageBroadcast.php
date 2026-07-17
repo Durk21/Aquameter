@@ -14,7 +14,7 @@ class OutageBroadcast extends Notification
 
     public function via(object $notifiable): array
     {
-        return ["mail", "database"];
+        return $notifiable->wantsEmailFor("outage_broadcasts") ? ["mail", "database"] : ["database"];
     }
 
     public function toMail(object $notifiable): MailMessage
