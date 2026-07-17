@@ -23,6 +23,10 @@ class BillPdfService
             $browsershot->setNodeBinary($nodeBinary);
         }
 
+        if (config("services.browsershot.no_sandbox")) {
+            $browsershot->noSandbox();
+        }
+
         $browsershot->save($outputPath);
 
         return $outputPath;

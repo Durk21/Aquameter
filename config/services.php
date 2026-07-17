@@ -37,6 +37,11 @@ return [
 
     "browsershot" => [
         "node_binary" => env("NODE_BINARY_PATH"),
+        // Chromium's sandbox needs a privilege this container/runner
+        // doesn't have (unprivileged user namespaces). Only ever
+        // enable this where the outer environment is already
+        // isolated and throwaway, e.g. CI — never in production.
+        "no_sandbox" => (bool) env("BROWSERSHOT_NO_SANDBOX", false),
     ],
 
 ];

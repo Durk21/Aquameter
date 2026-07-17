@@ -64,4 +64,6 @@ jobs:
           done
 
       - name: Run tests
+        env:
+          BROWSERSHOT_NO_SANDBOX: true
         run: php artisan test
