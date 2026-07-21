@@ -31,12 +31,12 @@ const severityStyles = {
     <AppShell>
         <template #header>
             <div class="flex items-center justify-between">
-                <h2 class="font-semibold text-xl text-ocean-900" style="font-family: 'Space Grotesk', sans-serif;">
+                <h2 class="font-display font-semibold text-xl text-ocean-900 dark:text-white">
                     Leak Reports
                 </h2>
                 <Link
                     :href="route('customer.leak-reports.create')"
-                    class="text-sm font-medium bg-ocean-600 hover:bg-ocean-700 text-white px-4 py-2 rounded-md transition-colors"
+                    class="text-sm font-medium bg-gradient-ocean text-white shadow-soft hover:shadow-glow px-4 py-2 rounded-lg transition-shadow"
                 >
                     Report a Leak
                 </Link>
@@ -45,18 +45,18 @@ const severityStyles = {
 
         <div class="max-w-4xl mx-auto px-4 md:px-6 py-6">
             <div class="flex md:hidden items-center justify-between mb-4">
-                <h1 class="text-lg font-semibold text-ocean-900" style="font-family: 'Space Grotesk', sans-serif;">
+                <h1 class="font-display text-lg font-semibold text-ocean-900 dark:text-white">
                     Leak Reports
                 </h1>
                 <Link
                     :href="route('customer.leak-reports.create')"
-                    class="text-sm font-medium bg-ocean-600 hover:bg-ocean-700 text-white px-3 py-1.5 rounded-md"
+                    class="text-sm font-medium bg-gradient-ocean text-white shadow-soft px-3 py-1.5 rounded-lg"
                 >
                     Report
                 </Link>
             </div>
 
-            <div v-if="leakReports.length === 0" class="bg-white rounded-lg border border-ocean-100 p-6 text-ocean-700">
+            <div v-if="leakReports.length === 0" class="bg-white dark:bg-neutral-900 rounded-2xl border border-ocean-100 dark:border-white/5 shadow-soft p-6 text-ocean-600 dark:text-neutral-400">
                 You haven't reported any leaks yet.
             </div>
 
@@ -70,7 +70,7 @@ const severityStyles = {
                             >
                                 {{ leak.severity_label }} severity
                             </span>
-                            <span class="text-xs text-ocean-500">{{ leak.zone }}</span>
+                            <span class="text-xs text-ocean-500 dark:text-neutral-400">{{ leak.zone }}</span>
                         </div>
                         <span
                             v-if="leak.status"
@@ -80,14 +80,14 @@ const severityStyles = {
                             {{ leak.status_label }}
                         </span>
                     </div>
-                    <p class="text-sm text-ocean-700 mb-2">{{ leak.description }}</p>
-                    <p v-if="leak.location_notes" class="text-xs text-ocean-500 mb-2">{{ leak.location_notes }}</p>
+                    <p class="text-sm text-ocean-700 dark:text-neutral-300 mb-2">{{ leak.description }}</p>
+                    <p v-if="leak.location_notes" class="text-xs text-ocean-500 dark:text-neutral-400 mb-2">{{ leak.location_notes }}</p>
                     <PhotoGallery :photos="leak.photos" />
                     <p v-if="leak.rating" class="text-sm text-amber-600 mt-2">
                         {{ '★'.repeat(leak.rating) }}{{ '☆'.repeat(5 - leak.rating) }}
                     </p>
                     <StarRating v-else-if="leak.status === 'completed' && leak.work_order_id" :work-order-id="leak.work_order_id" />
-                    <p class="text-xs text-ocean-400 mt-2">Reported {{ leak.created_at }}</p>
+                    <p class="text-xs text-ocean-400 dark:text-neutral-500 mt-2">Reported {{ leak.created_at }}</p>
                 </div>
             </div>
         </div>

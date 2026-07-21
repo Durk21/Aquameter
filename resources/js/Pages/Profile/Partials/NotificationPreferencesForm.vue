@@ -28,11 +28,11 @@ const submit = () => {
 <template>
     <section>
         <header>
-            <h2 class="text-lg font-medium text-gray-900">
+            <h2 class="text-lg font-display font-semibold text-ocean-900 dark:text-white">
                 Email Notifications
             </h2>
 
-            <p class="mt-1 text-sm text-gray-600">
+            <p class="mt-1 text-sm text-ocean-500 dark:text-neutral-400">
                 Choose what we email you about. You'll always see everything in your in-app notification bell either way.
             </p>
         </header>
@@ -40,7 +40,7 @@ const submit = () => {
         <form @submit.prevent="submit" class="mt-6 space-y-4">
             <div v-for="(label, category) in categories" :key="category" class="flex items-center gap-2">
                 <Checkbox :id="`pref-${category}`" v-model:checked="form.preferences[category]" />
-                <label :for="`pref-${category}`" class="text-sm text-gray-700">{{ label }}</label>
+                <label :for="`pref-${category}`" class="text-sm text-ocean-700 dark:text-neutral-300">{{ label }}</label>
             </div>
 
             <div class="flex items-center gap-4">
@@ -52,7 +52,7 @@ const submit = () => {
                     leave-active-class="transition ease-in-out"
                     leave-to-class="opacity-0"
                 >
-                    <p v-if="form.recentlySuccessful" class="text-sm text-gray-600">
+                    <p v-if="form.recentlySuccessful" class="text-sm text-ocean-500 dark:text-neutral-400">
                         Saved.
                     </p>
                 </Transition>

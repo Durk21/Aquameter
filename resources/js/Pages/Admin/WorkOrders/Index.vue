@@ -37,17 +37,17 @@ const statusStyles = {
 
     <AppShell>
         <template #header>
-            <h2 class="font-semibold text-xl text-ocean-900" style="font-family: 'Space Grotesk', sans-serif;">
+            <h2 class="font-display font-semibold text-xl text-ocean-900 dark:text-white">
                 Work Orders
             </h2>
         </template>
 
         <div class="max-w-5xl mx-auto px-4 md:px-6 py-6 space-y-8">
-            <h1 class="md:hidden text-lg font-semibold text-ocean-900" style="font-family: 'Space Grotesk', sans-serif;">
+            <h1 class="md:hidden font-display text-lg font-semibold text-ocean-900 dark:text-white">
                 Work Orders
             </h1>
 
-            <div v-if="$page.props.flash?.status" class="text-sm text-ocean-700 bg-ocean-50 rounded-md px-3 py-2">
+            <div v-if="$page.props.flash?.status" class="text-sm text-ocean-700 dark:text-neutral-300 bg-ocean-50 rounded-md px-3 py-2">
                 {{ $page.props.flash.status }}
             </div>
             <div v-if="$page.props.errors?.work_order" class="text-sm text-red-700 bg-red-50 rounded-md px-3 py-2">
@@ -56,22 +56,22 @@ const statusStyles = {
 
             <!-- Defaulted accounts awaiting a notice -->
             <section>
-                <h3 class="font-semibold text-ocean-900 mb-3">Defaulted Accounts</h3>
-                <p class="text-sm text-ocean-500 mb-3">
+                <h3 class="font-semibold text-ocean-900 dark:text-white mb-3">Defaulted Accounts</h3>
+                <p class="text-sm text-ocean-500 dark:text-neutral-400 mb-3">
                     Disconnection is never automatic. Issuing a notice starts a {{ noticeDays }}-day clock before sign-off is possible.
                 </p>
-                <div class="bg-white rounded-lg border border-ocean-100 overflow-hidden">
-                    <div v-if="defaultedAccounts.length === 0" class="p-6 text-ocean-700 text-sm">
+                <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-ocean-100 dark:border-white/5 shadow-soft overflow-hidden">
+                    <div v-if="defaultedAccounts.length === 0" class="p-6 text-ocean-600 dark:text-neutral-400 text-sm">
                         No defaulted accounts awaiting a disconnection notice.
                     </div>
-                    <div v-else class="divide-y divide-ocean-100">
+                    <div v-else class="divide-y divide-ocean-100 dark:divide-white/5">
                         <div v-for="account in defaultedAccounts" :key="account.id" class="flex items-center justify-between gap-3 p-4">
                             <div>
-                                <p class="font-medium text-ocean-900">{{ account.customer_name }} · {{ account.account_number }}</p>
-                                <p class="text-xs text-ocean-500 mt-0.5">
+                                <p class="font-medium text-ocean-900 dark:text-white">{{ account.customer_name }} · {{ account.account_number }}</p>
+                                <p class="text-xs text-ocean-500 dark:text-neutral-400 mt-0.5">
                                     {{ account.zone }} · Outstanding KES {{ account.outstanding_amount }} · Defaulted {{ account.defaulted_at }}
                                 </p>
-                                <p v-if="account.phone" class="text-xs text-ocean-500 mt-0.5">{{ account.phone }}</p>
+                                <p v-if="account.phone" class="text-xs text-ocean-500 dark:text-neutral-400 mt-0.5">{{ account.phone }}</p>
                             </div>
                             <Link
                                 :href="route('admin.work-orders.initiate-disconnection', account.id)"
@@ -88,19 +88,19 @@ const statusStyles = {
 
             <!-- Active pipeline -->
             <section>
-                <h3 class="font-semibold text-ocean-900 mb-3">Active Pipeline</h3>
-                <div class="bg-white rounded-lg border border-ocean-100 overflow-hidden">
-                    <div v-if="pipeline.length === 0" class="p-6 text-ocean-700 text-sm">
+                <h3 class="font-semibold text-ocean-900 dark:text-white mb-3">Active Pipeline</h3>
+                <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-ocean-100 dark:border-white/5 shadow-soft overflow-hidden">
+                    <div v-if="pipeline.length === 0" class="p-6 text-ocean-600 dark:text-neutral-400 text-sm">
                         No active work orders.
                     </div>
-                    <div v-else class="divide-y divide-ocean-100">
+                    <div v-else class="divide-y divide-ocean-100 dark:divide-white/5">
                         <div v-for="wo in pipeline" :key="wo.id" class="p-4">
                             <div class="flex items-start justify-between gap-3 mb-2">
                                 <div>
-                                    <p class="font-medium text-ocean-900">
+                                    <p class="font-medium text-ocean-900 dark:text-white">
                                         {{ wo.type_label }} · {{ wo.customer_name }} · {{ wo.account_number }}
                                     </p>
-                                    <p class="text-xs text-ocean-500 mt-0.5">
+                                    <p class="text-xs text-ocean-500 dark:text-neutral-400 mt-0.5">
                                         {{ wo.zone }} · Opened {{ wo.created_at }}<span v-if="wo.phone"> · {{ wo.phone }}</span>
                                     </p>
                                 </div>
@@ -112,25 +112,25 @@ const statusStyles = {
                                 </span>
                             </div>
 
-                            <p v-if="wo.status === 'notice_sent'" class="text-sm text-ocean-700 mb-2">
+                            <p v-if="wo.status === 'notice_sent'" class="text-sm text-ocean-700 dark:text-neutral-300 mb-2">
                                 Notice deadline: {{ wo.notice_deadline }}
-                                <span v-if="!wo.notice_elapsed" class="text-ocean-500">(not yet elapsed)</span>
+                                <span v-if="!wo.notice_elapsed" class="text-ocean-500 dark:text-neutral-400">(not yet elapsed)</span>
                             </p>
                             <p v-if="wo.status === 'disputed'" class="text-sm text-red-700 mb-2">
                                 Dispute reason: {{ wo.dispute_reason }}
                             </p>
 
-                            <div v-if="wo.source" class="text-sm text-ocean-700 bg-ocean-50 rounded-md px-3 py-2 mb-2">
+                            <div v-if="wo.source" class="text-sm text-ocean-700 dark:text-neutral-300 bg-ocean-50 rounded-md px-3 py-2 mb-2">
                                 <span v-if="wo.source.severity_label" class="font-medium">{{ wo.source.severity_label }} severity — </span>
                                 <span v-if="wo.source.request_type" class="font-medium">{{ wo.source.request_type }} — </span>
                                 <span v-if="wo.source.scheduled_for" class="font-medium">Scheduled {{ wo.source.scheduled_for }} ({{ wo.source.meter_number }}) — </span>
                                 {{ wo.source.description }}
-                                <span v-if="wo.source.location_notes" class="block text-xs text-ocean-500 mt-1">{{ wo.source.location_notes }}</span>
+                                <span v-if="wo.source.location_notes" class="block text-xs text-ocean-500 dark:text-neutral-400 mt-1">{{ wo.source.location_notes }}</span>
                                 <PhotoGallery :photos="wo.source.photos" />
                             </div>
 
                             <div v-if="wo.evidence_photos && wo.evidence_photos.length > 0" class="mb-2">
-                                <p class="text-xs font-medium text-ocean-500 mb-1">Repair evidence:</p>
+                                <p class="text-xs font-medium text-ocean-500 dark:text-neutral-400 mb-1">Repair evidence:</p>
                                 <PhotoGallery :photos="wo.evidence_photos" />
                             </div>
 
@@ -160,7 +160,7 @@ const statusStyles = {
                                     method="patch"
                                     :data="{ resolution: 'cancel' }"
                                     as="button"
-                                    class="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold border border-ocean-300 text-ocean-700 hover:bg-ocean-50"
+                                    class="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold border border-ocean-300 text-ocean-700 dark:text-neutral-300 hover:bg-ocean-50"
                                 >
                                     Cancel Work Order
                                 </Link>
@@ -169,7 +169,7 @@ const statusStyles = {
                                     :href="route('admin.work-orders.cancel', wo.id)"
                                     method="patch"
                                     as="button"
-                                    class="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold border border-ocean-300 text-ocean-700 hover:bg-ocean-50"
+                                    class="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold border border-ocean-300 text-ocean-700 dark:text-neutral-300 hover:bg-ocean-50"
                                 >
                                     Cancel
                                 </Link>
@@ -181,19 +181,19 @@ const statusStyles = {
 
             <!-- History -->
             <section>
-                <h3 class="font-semibold text-ocean-900 mb-3">Recent History</h3>
-                <div class="bg-white rounded-lg border border-ocean-100 overflow-hidden">
-                    <div v-if="history.length === 0" class="p-6 text-ocean-700 text-sm">
+                <h3 class="font-semibold text-ocean-900 dark:text-white mb-3">Recent History</h3>
+                <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-ocean-100 dark:border-white/5 shadow-soft overflow-hidden">
+                    <div v-if="history.length === 0" class="p-6 text-ocean-600 dark:text-neutral-400 text-sm">
                         No closed work orders yet.
                     </div>
-                    <div v-else class="divide-y divide-ocean-100">
+                    <div v-else class="divide-y divide-ocean-100 dark:divide-white/5">
                         <div v-for="wo in history" :key="wo.id" class="p-4">
                             <div class="flex items-center justify-between gap-3">
                                 <div>
-                                    <p class="font-medium text-ocean-900">
+                                    <p class="font-medium text-ocean-900 dark:text-white">
                                         {{ wo.type_label }} · {{ wo.customer_name }} · {{ wo.account_number }}
                                     </p>
-                                    <p class="text-xs text-ocean-500 mt-0.5">{{ wo.zone }}<span v-if="wo.phone"> · {{ wo.phone }}</span></p>
+                                    <p class="text-xs text-ocean-500 dark:text-neutral-400 mt-0.5">{{ wo.zone }}<span v-if="wo.phone"> · {{ wo.phone }}</span></p>
                                 </div>
                                 <span
                                     class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium shrink-0"
@@ -205,7 +205,7 @@ const statusStyles = {
                             <PhotoGallery v-if="wo.evidence_photos" :photos="wo.evidence_photos" />
                             <p v-if="wo.rating" class="text-xs text-amber-600 mt-1">
                                 {{ '★'.repeat(wo.rating) }}{{ '☆'.repeat(5 - wo.rating) }}
-                                <span v-if="wo.rating_comment" class="text-ocean-500">— {{ wo.rating_comment }}</span>
+                                <span v-if="wo.rating_comment" class="text-ocean-500 dark:text-neutral-400">— {{ wo.rating_comment }}</span>
                             </p>
                         </div>
                     </div>

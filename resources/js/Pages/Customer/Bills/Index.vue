@@ -1,5 +1,8 @@
 <script setup>
 import AppShell from "@/Layouts/AppShell.vue";
+import Card from "@/Components/Card.vue";
+import Badge from "@/Components/Badge.vue";
+import EmptyState from "@/Components/EmptyState.vue";
 import { Head } from "@inertiajs/vue3";
 
 defineProps({
@@ -9,11 +12,11 @@ defineProps({
     },
 });
 
-const statusStyles = {
-    pending: "bg-ocean-100 text-ocean-800",
-    paid: "bg-emerald-100 text-emerald-800",
-    overdue: "bg-amber-100 text-amber-800",
-    defaulted: "bg-red-100 text-red-800",
+const statusTones = {
+    pending: "ocean",
+    paid: "emerald",
+    overdue: "amber",
+    defaulted: "red",
 };
 </script>
 
@@ -22,79 +25,52 @@ const statusStyles = {
 
     <AppShell>
         <template #header>
-            <h2 class="font-semibold text-xl text-ocean-900" style="font-family: 'Space Grotesk', sans-serif;">
+            <h2 class="font-display font-semibold text-xl text-ocean-900 dark:text-white">
                 Bills
             </h2>
         </template>
 
         <div class="max-w-4xl mx-auto px-4 md:px-6 py-6">
-            <h1 class="md:hidden text-lg font-semibold text-ocean-900 mb-4" style="font-family: 'Space Grotesk', sans-serif;">
+            <h1 class="md:hidden font-display text-lg font-semibold text-ocean-900 dark:text-white mb-4">
                 Bills
             </h1>
 
-            <div class="bg-white rounded-lg border border-ocean-100 overflow-hidden">
-                <div v-if="bills.length === 0" class="p-6 text-ocean-700">
-                    No bills yet. A bill is generated automatically after your first meter reading is followed by a second one.
-                </div>
+            <Card :padded="false">
+                <EmptyState
+                    v-if="bills.length === 0"
+                    icon="clipboard-list"
+                    title="No bills yet"
+                    description="A bill is generated automatically after your first meter reading is followed by a second one."
+                />
 
-                <div v-else class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-ocean-100">
-                        <thead class="bg-ocean-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-ocean-700 uppercase tracking-wider">
-                                    Units
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-ocean-700 uppercase tracking-wider">
-                                    Amount (KES)
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-ocean-700 uppercase tracking-wider">
-                                    Due Date
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-ocean-700 uppercase tracking-wider">
-                                    Status
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-ocean-700 uppercase tracking-wider"></th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-ocean-100">
-                            <tr v-for="bill in bills" :key="bill.id">
-                                <td class="px-6 py-4 text-sm text-ocean-900" style="font-family: 'JetBrains Mono', monospace;">
-                                    {{ bill.units_consumed }}
-                                </td>
-                                <td class="px-6 py-4 text-sm text-ocean-900" style="font-family: 'JetBrains Mono', monospace;">
-                                    {{ bill.amount }}
-                                </td>
-                                <td class="px-6 py-4 text-sm text-ocean-700">
-                                    {{ bill.due_date }}
-                                </td>
-                                <td class="px-6 py-4 text-sm">
-                                    <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                                        :class="statusStyles[bill.status] || 'bg-ocean-100 text-ocean-800'"
-                                    >
-                                        {{ bill.status_label }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 text-sm text-right whitespace-nowrap">
-                                    <a
-                                        :href="route('bills.pdf', bill.id)"
-                                        class="text-ocean-600 hover:text-ocean-800 font-medium"
-                                    >
-                                        Download PDF
-                                    </a>
-                                    <a
-                                        v-if="bill.payment_id"
-                                        :href="route('payments.receipt', bill.payment_id)"
-                                        class="ml-3 text-ocean-600 hover:text-ocean-800 font-medium"
-                                    >
-                                        Receipt
-                                    </a>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div v-else class="divide-y divide-ocean-100 dark:divide-white/5">
+                    <div v-for="bill in bills" :key="bill.id" class="flex flex-wrap items-center justify-between gap-3 p-4">
+                        <div>
+                            <p class="font-mono font-semibold text-ocean-900 dark:text-white">KES {{ bill.amount }}</p>
+                            <p class="text-xs text-ocean-500 dark:text-neutral-400 mt-0.5">
+                                {{ bill.units_consumed }} units · Due {{ bill.due_date }}
+                            </p>
+                        </div>
+
+                        <div class="flex items-center gap-4">
+                            <Badge :tone="statusTones[bill.status] || 'ocean'">{{ bill.status_label }}</Badge>
+                            <a
+                                :href="route('bills.pdf', bill.id)"
+                                class="text-sm text-ocean-600 dark:text-ocean-400 hover:text-ocean-800 dark:hover:text-ocean-300 font-medium"
+                            >
+                                PDF
+                            </a>
+                            <a
+                                v-if="bill.payment_id"
+                                :href="route('payments.receipt', bill.payment_id)"
+                                class="text-sm text-ocean-600 dark:text-ocean-400 hover:text-ocean-800 dark:hover:text-ocean-300 font-medium"
+                            >
+                                Receipt
+                            </a>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </Card>
         </div>
     </AppShell>
 </template>

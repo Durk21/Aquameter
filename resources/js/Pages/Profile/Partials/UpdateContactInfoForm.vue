@@ -27,11 +27,11 @@ const submit = () => {
 <template>
     <section>
         <header>
-            <h2 class="text-lg font-medium text-gray-900">
+            <h2 class="text-lg font-display font-semibold text-ocean-900 dark:text-white">
                 Contact Information
             </h2>
 
-            <p class="mt-1 text-sm text-gray-600">
+            <p class="mt-1 text-sm text-ocean-500 dark:text-neutral-400">
                 A phone number and alternate email we can reach you on, separate from your login email.
             </p>
         </header>
@@ -77,7 +77,7 @@ const submit = () => {
                     leave-active-class="transition ease-in-out"
                     leave-to-class="opacity-0"
                 >
-                    <p v-if="form.recentlySuccessful" class="text-sm text-gray-600">
+                    <p v-if="form.recentlySuccessful" class="text-sm text-ocean-500 dark:text-neutral-400">
                         Saved.
                     </p>
                 </Transition>
