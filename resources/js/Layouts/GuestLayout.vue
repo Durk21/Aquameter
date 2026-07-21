@@ -33,7 +33,7 @@ const highlights = [
             <div class="relative z-10 flex flex-col justify-between p-12 text-white w-full">
                 <Link href="/" class="flex items-center gap-2.5">
                     <div class="w-9 h-9 rounded-lg bg-white/15 backdrop-blur flex items-center justify-center">
-                        <AppLogo :size="22" class="text-white" />
+                        <AppLogo :size="22" mono class="text-white" />
                     </div>
                     <span class="font-display font-semibold text-lg tracking-tight">Aquameter</span>
                 </Link>

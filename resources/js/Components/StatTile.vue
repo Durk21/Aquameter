@@ -86,7 +86,7 @@ const sparklinePoints = computed(() => {
     <div class="group relative bg-white dark:bg-neutral-900 rounded-2xl border border-ocean-100 dark:border-neutral-800 p-4 shadow-soft transition-all duration-200 hover:shadow-elevated hover:-translate-y-0.5 overflow-hidden">
         <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
-                <p class="text-xs font-medium text-ocean-500 dark:text-neutral-400 uppercase tracking-wide truncate">{{ label }}</p>
+                <p class="text-xs font-medium text-ocean-500 dark:text-neutral-400 uppercase tracking-wide leading-snug">{{ label }}</p>
                 <p class="mt-1.5 text-2xl font-display font-semibold text-ocean-900 dark:text-neutral-50 tabular-nums">
                     {{ value }}
                 </p>
