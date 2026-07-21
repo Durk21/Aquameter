@@ -1,0 +1,1 @@
+import{A as e,L as t,U as n,f as r,v as i,x as a}from"./app-CSvFyGbO.js";var o={class:`text-sm text-red-600 dark:text-red-400`},s={__name:`InputError`,props:{message:{type:String}},setup(s){return(c,l)=>t((e(),a(`div`,null,[i(`p`,o,n(s.message),1)],512)),[[r,s.message]])}};export{s as t};
