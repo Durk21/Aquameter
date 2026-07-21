@@ -7,11 +7,14 @@ use App\Models\Account;
 use App\Models\LeakReport;
 use App\Models\Meter;
 use App\Models\PipeSegment;
+use App\Models\User;
+use App\Notifications\LeakReportSubmitted;
 use App\Services\PhotoUploadService;
 use App\Services\WorkOrderService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -95,6 +98,8 @@ class LeakReportController extends Controller
         PhotoUploadService::store($leakReport, $request->file("photos", []), $request->user());
 
         WorkOrderService::fromLeakReport($leakReport);
+
+        Notification::send(User::role(config("roles.admin"))->get(), new LeakReportSubmitted($leakReport));
 
         return redirect()
             ->route("customer.leak-reports.index")

@@ -6,6 +6,36 @@ use App\Models\Account;
 use App\Models\LeakReport;
 use App\Models\User;
 use App\Models\WorkOrder;
+use App\Notifications\LeakReportSubmitted;
+use Illuminate\Support\Facades\Notification;
+
+it("notifies every admin when a customer reports a leak", function () {
+    Notification::fake();
+
+    $adminOne = User::factory()->create();
+    $adminOne->assignRole(config("roles.admin"));
+
+    $adminTwo = User::factory()->create();
+    $adminTwo->assignRole(config("roles.admin"));
+
+    $technician = User::factory()->create();
+    $technician->assignRole(config("roles.technician"));
+
+    $customer = User::factory()->create();
+    $customer->assignRole(config("roles.customer"));
+    $account = Account::factory()->create(["user_id" => $customer->id]);
+
+    $this->actingAs($customer)->post("/customer/leak-reports", [
+        "severity" => "high",
+        "zone" => $account->zone,
+        "description" => "Water bubbling up from the road surface.",
+    ]);
+
+    Notification::assertSentTo($adminOne, LeakReportSubmitted::class);
+    Notification::assertSentTo($adminTwo, LeakReportSubmitted::class);
+    Notification::assertNotSentTo($technician, LeakReportSubmitted::class);
+    Notification::assertNotSentTo($customer, LeakReportSubmitted::class);
+});
 
 it("allows a customer to report a leak on their own account, opening a work order", function () {
     $customer = User::factory()->create();
