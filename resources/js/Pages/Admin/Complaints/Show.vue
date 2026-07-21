@@ -14,6 +14,7 @@ const props = defineProps({
 const statusStyles = {
     submitted: "bg-ocean-100 text-ocean-800",
     under_review: "bg-amber-100 text-amber-800",
+    approved: "bg-indigo-100 text-indigo-800",
     resolved: "bg-emerald-100 text-emerald-800",
     rejected: "bg-red-100 text-red-800",
 };
@@ -71,11 +72,14 @@ const submit = () => {
                 <h3 class="font-semibold text-ocean-900 dark:text-white mb-4">Update Status</h3>
                 <form @submit.prevent="submit">
                     <div class="space-y-2">
-                        <label v-for="option in ['under_review', 'resolved', 'rejected']" :key="option" class="flex items-center gap-2">
+                        <label v-for="option in ['under_review', 'approved', 'resolved', 'rejected']" :key="option" class="flex items-center gap-2">
                             <input type="radio" v-model="form.status" :value="option" class="text-ocean-600 focus:ring-ocean-500" />
-                            <span class="text-sm text-ocean-800 capitalize">{{ option.replace('_', ' ') }}</span>
+                            <span class="text-sm text-ocean-800 dark:text-neutral-300 capitalize">{{ option.replace('_', ' ') }}</span>
                         </label>
                     </div>
+                    <p v-if="form.status === 'approved'" class="mt-2 text-xs text-ocean-500 dark:text-neutral-400">
+                        This dispatches a work order to the technician queue.
+                    </p>
                     <InputError class="mt-2" :message="form.errors.status" />
 
                     <div class="mt-4">

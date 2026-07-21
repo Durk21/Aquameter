@@ -6,6 +6,7 @@ use App\Enums\AccountStatus;
 use App\Enums\WorkOrderStatus;
 use App\Enums\WorkOrderType;
 use App\Models\Account;
+use App\Models\Complaint;
 use App\Models\LeakReport;
 use App\Models\MaintenanceSchedule;
 use App\Models\ServiceRequest;
@@ -258,6 +259,14 @@ class WorkOrderController extends Controller
             $workOrder->sourceable instanceof MaintenanceSchedule => [
                 "scheduled_for" => $workOrder->sourceable->scheduled_for->toDateString(),
                 "meter_number" => $workOrder->sourceable->meter->meter_number,
+                "description" => $workOrder->sourceable->description,
+                "photos" => $workOrder->sourceable->photos->map(fn ($photo) => [
+                    "id" => $photo->id,
+                    "url" => route("photos.show", $photo->id),
+                ]),
+            ],
+            $workOrder->sourceable instanceof Complaint => [
+                "subject" => $workOrder->sourceable->subject,
                 "description" => $workOrder->sourceable->description,
                 "photos" => $workOrder->sourceable->photos->map(fn ($photo) => [
                     "id" => $photo->id,

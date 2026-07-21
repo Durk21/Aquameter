@@ -5,11 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Account;
 use App\Models\PipeSegment;
 use App\Models\ServiceRequest;
+use App\Models\User;
+use App\Notifications\ServiceRequestSubmitted;
 use App\Services\PhotoUploadService;
 use App\Services\WorkOrderService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -78,6 +81,8 @@ class ServiceRequestController extends Controller
         PhotoUploadService::store($serviceRequest, $request->file("photos", []), $request->user());
 
         WorkOrderService::fromServiceRequest($serviceRequest);
+
+        Notification::send(User::role(config("roles.admin"))->get(), new ServiceRequestSubmitted($serviceRequest));
 
         return redirect()
             ->route("customer.service-requests.index")

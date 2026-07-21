@@ -7,6 +7,7 @@ use App\Enums\WorkOrderStatus;
 use App\Enums\WorkOrderType;
 use App\Models\Account;
 use App\Models\Bill;
+use App\Models\Complaint;
 use App\Models\LeakReport;
 use App\Models\MaintenanceSchedule;
 use App\Models\ServiceRequest;
@@ -268,6 +269,39 @@ class WorkOrderService
         $serviceRequest->account->user->notify(new WorkOrderStatusUpdated($workOrder));
 
         return $workOrder;
+    }
+
+    /**
+     * An admin approving a complaint that needs a field visit dispatches
+     * it straight to the technician queue, just like a leak report or
+     * service request. Guards against double-dispatch if a complaint is
+     * approved more than once (e.g. re-saved without a status change).
+     */
+    public static function fromComplaint(Complaint $complaint, User $admin): ?WorkOrder
+    {
+        if (self::hasWorkOrderFor($complaint)) {
+            return null;
+        }
+
+        $workOrder = WorkOrder::create([
+            "account_id" => $complaint->account_id,
+            "type" => WorkOrderType::ComplaintFollowUp,
+            "status" => WorkOrderStatus::Approved,
+            "created_by" => $admin->id,
+            "sourceable_type" => Complaint::class,
+            "sourceable_id" => $complaint->id,
+        ]);
+
+        $complaint->account->user->notify(new WorkOrderStatusUpdated($workOrder));
+
+        return $workOrder;
+    }
+
+    protected static function hasWorkOrderFor(Complaint $complaint): bool
+    {
+        return WorkOrder::where("sourceable_type", Complaint::class)
+            ->where("sourceable_id", $complaint->id)
+            ->exists();
     }
 
     /**

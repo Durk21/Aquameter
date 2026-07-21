@@ -71,11 +71,11 @@ class WorkOrderStatusUpdated extends Notification
                 && $this->workOrder->status === WorkOrderStatus::Completed
                 => "Your scheduled maintenance visit is complete.",
 
-            in_array($this->workOrder->type, [WorkOrderType::LeakRepair, WorkOrderType::ServiceRequest], true)
+            in_array($this->workOrder->type, [WorkOrderType::LeakRepair, WorkOrderType::ServiceRequest, WorkOrderType::ComplaintFollowUp], true)
                 && $this->workOrder->status === WorkOrderStatus::Approved
                 => "Your {$this->workOrder->type->label()} has been logged and is in the technician dispatch queue.",
 
-            in_array($this->workOrder->type, [WorkOrderType::LeakRepair, WorkOrderType::ServiceRequest], true)
+            in_array($this->workOrder->type, [WorkOrderType::LeakRepair, WorkOrderType::ServiceRequest, WorkOrderType::ComplaintFollowUp], true)
                 && $this->workOrder->status === WorkOrderStatus::Completed
                 => "Your {$this->workOrder->type->label()} has been resolved.",
 

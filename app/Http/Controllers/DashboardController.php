@@ -24,7 +24,7 @@ use Inertia\Response;
 class DashboardController extends Controller
 {
     protected const OPEN_BILL_STATUSES = [BillStatus::Pending, BillStatus::Overdue, BillStatus::Defaulted];
-    protected const OPEN_COMPLAINT_STATUSES = [ComplaintStatus::Submitted, ComplaintStatus::UnderReview];
+    protected const OPEN_COMPLAINT_STATUSES = [ComplaintStatus::Submitted, ComplaintStatus::UnderReview, ComplaintStatus::Approved];
     protected const OPEN_WORK_ORDER_STATUSES = [WorkOrderStatus::NoticeSent, WorkOrderStatus::Approved, WorkOrderStatus::Disputed, WorkOrderStatus::Claimed];
 
     public function admin(): Response

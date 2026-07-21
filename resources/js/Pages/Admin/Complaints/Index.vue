@@ -12,6 +12,7 @@ defineProps({
 const statusStyles = {
     submitted: "bg-ocean-100 text-ocean-800",
     under_review: "bg-amber-100 text-amber-800",
+    approved: "bg-indigo-100 text-indigo-800",
     resolved: "bg-emerald-100 text-emerald-800",
     rejected: "bg-red-100 text-red-800",
 };

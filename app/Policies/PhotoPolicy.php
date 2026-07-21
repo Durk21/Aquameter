@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\Complaint;
 use App\Models\LeakReport;
 use App\Models\Photo;
 use App\Models\ServiceRequest;
@@ -21,6 +22,7 @@ class PhotoPolicy
         $accountUserId = match (true) {
             $photoable instanceof LeakReport,
             $photoable instanceof ServiceRequest,
+            $photoable instanceof Complaint,
             $photoable instanceof WorkOrder => $photoable->account->user_id,
             default => null,
         };

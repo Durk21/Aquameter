@@ -6,10 +6,14 @@ use App\Enums\ComplaintStatus;
 use App\Models\Account;
 use App\Models\Bill;
 use App\Models\Complaint;
+use App\Models\User;
 use App\Notifications\ComplaintStatusUpdated;
+use App\Notifications\ComplaintSubmitted;
+use App\Services\WorkOrderService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -86,7 +90,7 @@ class ComplaintController extends Controller
             }
         }
 
-        Complaint::create([
+        $complaint = Complaint::create([
             "account_id" => $account->id,
             "bill_id" => $validated["bill_id"] ?? null,
             "submitted_by" => $request->user()->id,
@@ -94,6 +98,8 @@ class ComplaintController extends Controller
             "description" => $validated["description"],
             "status" => "submitted",
         ]);
+
+        Notification::send(User::role(config("roles.admin"))->get(), new ComplaintSubmitted($complaint));
 
         return redirect()
             ->route("customer.complaints.index")
@@ -162,7 +168,7 @@ class ComplaintController extends Controller
         Gate::authorize("review", $complaint);
 
         $validated = $request->validate([
-            "status" => ["required", Rule::in(["under_review", "resolved", "rejected"])],
+            "status" => ["required", Rule::in(["under_review", "approved", "resolved", "rejected"])],
             "resolution_notes" => ["required_if:status,resolved,rejected", "nullable", "string", "max:2000"],
         ]);
 
@@ -175,6 +181,10 @@ class ComplaintController extends Controller
         }
 
         $complaint->save();
+
+        if ($validated["status"] === "approved") {
+            WorkOrderService::fromComplaint($complaint, $request->user());
+        }
 
         $complaint->submittedBy->notify(new ComplaintStatusUpdated($complaint));
 

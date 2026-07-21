@@ -6,6 +6,28 @@ use App\Models\Account;
 use App\Models\ServiceRequest;
 use App\Models\User;
 use App\Models\WorkOrder;
+use App\Notifications\ServiceRequestSubmitted;
+use Illuminate\Support\Facades\Notification;
+
+it("notifies every admin when a customer submits a service request", function () {
+    Notification::fake();
+
+    $admin = User::factory()->create();
+    $admin->assignRole(config("roles.admin"));
+
+    $customer = User::factory()->create();
+    $customer->assignRole(config("roles.customer"));
+    $account = Account::factory()->create(["user_id" => $customer->id]);
+
+    $this->actingAs($customer)->post("/customer/service-requests", [
+        "type" => "meter_inspection",
+        "zone" => $account->zone,
+        "description" => "Meter seems to be reading inconsistently.",
+    ]);
+
+    Notification::assertSentTo($admin, ServiceRequestSubmitted::class);
+    Notification::assertNotSentTo($customer, ServiceRequestSubmitted::class);
+});
 
 it("allows a customer to submit a service request on their own account, opening a work order", function () {
     $customer = User::factory()->create();

@@ -4,20 +4,22 @@ namespace App\Enums;
 
 enum WorkOrderType: string
 {
-    case Disconnection  = "disconnection";
-    case Reconnection   = "reconnection";
-    case LeakRepair     = "leak_repair";
-    case ServiceRequest = "service_request";
-    case Maintenance    = "maintenance";
+    case Disconnection     = "disconnection";
+    case Reconnection      = "reconnection";
+    case LeakRepair        = "leak_repair";
+    case ServiceRequest    = "service_request";
+    case Maintenance       = "maintenance";
+    case ComplaintFollowUp = "complaint_follow_up";
 
     public function label(): string
     {
         return match ($this) {
-            self::Disconnection  => "Disconnection",
-            self::Reconnection   => "Reconnection",
-            self::LeakRepair     => "Leak Repair",
-            self::ServiceRequest => "Service Request",
-            self::Maintenance    => "Maintenance",
+            self::Disconnection     => "Disconnection",
+            self::Reconnection      => "Reconnection",
+            self::LeakRepair        => "Leak Repair",
+            self::ServiceRequest    => "Service Request",
+            self::Maintenance       => "Maintenance",
+            self::ComplaintFollowUp => "Complaint Follow-up",
         };
     }
 }

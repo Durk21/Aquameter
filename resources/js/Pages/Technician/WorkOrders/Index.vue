@@ -88,6 +88,7 @@ const statusStyles = {
                             <div v-if="wo.source" class="text-sm text-ocean-700 dark:text-neutral-300 bg-ocean-50 rounded-md px-3 py-2 mb-2">
                                 <span v-if="wo.source.severity_label" class="font-medium">{{ wo.source.severity_label }} severity — </span>
                                 <span v-if="wo.source.request_type" class="font-medium">{{ wo.source.request_type }} — </span>
+                                <span v-if="wo.source.subject" class="font-medium">{{ wo.source.subject }} — </span>
                                 {{ wo.source.description }}
                                 <span v-if="wo.source.location_notes" class="block text-xs text-ocean-500 dark:text-neutral-400 mt-1">{{ wo.source.location_notes }}</span>
                                 <PhotoGallery :photos="wo.source.photos" />
@@ -137,6 +138,7 @@ const statusStyles = {
                                 <p v-if="wo.source" class="text-xs text-ocean-600 mt-1">
                                     <span v-if="wo.source.severity_label">{{ wo.source.severity_label }} severity — </span>
                                     <span v-if="wo.source.request_type">{{ wo.source.request_type }} — </span>
+                                    <span v-if="wo.source.subject">{{ wo.source.subject }} — </span>
                                     {{ wo.source.description }}
                                 </p>
                                 <PhotoGallery v-if="wo.source" :photos="wo.source.photos" />
@@ -171,6 +173,7 @@ const statusStyles = {
                                 <p v-if="wo.source" class="text-xs text-ocean-600 mt-1">
                                     <span v-if="wo.source.severity_label">{{ wo.source.severity_label }} severity — </span>
                                     <span v-if="wo.source.request_type">{{ wo.source.request_type }} — </span>
+                                    <span v-if="wo.source.subject">{{ wo.source.subject }} — </span>
                                     {{ wo.source.description }}
                                 </p>
                                 <PhotoGallery v-if="wo.source" :photos="wo.source.photos" />
