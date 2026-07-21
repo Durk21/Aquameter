@@ -39,7 +39,7 @@ onUnmounted(() => {
     <Transition name="droplet-fade">
         <div
             v-if="visible"
-            class="fixed inset-0 z-[100] flex items-center justify-center bg-ocean-950/40 backdrop-blur-sm"
+            class="fixed inset-0 z-[1000] flex items-center justify-center bg-ocean-950/40 backdrop-blur-sm"
             role="status"
             aria-live="polite"
             aria-label="Loading"

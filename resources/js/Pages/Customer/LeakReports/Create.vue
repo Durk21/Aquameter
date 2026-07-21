@@ -4,8 +4,9 @@ import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import PhotoUploadInput from "@/Components/PhotoUploadInput.vue";
+import NetworkMap from "@/Components/NetworkMap.vue";
 import { Head, useForm } from "@inertiajs/vue3";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 
 const props = defineProps({
     meters: {
@@ -22,6 +23,14 @@ const props = defineProps({
     },
     defaultZone: {
         type: String,
+        required: true,
+    },
+    pipeSegments: {
+        type: Array,
+        required: true,
+    },
+    zoneCenters: {
+        type: Object,
         required: true,
     },
     serviceAreaBounds: {
@@ -41,39 +50,15 @@ const form = useForm({
     photos: [],
 });
 
-const locating = ref(false);
 const locationError = ref("");
 
-const useCurrentLocation = () => {
-    if (!navigator.geolocation) {
-        locationError.value = "Geolocation isn't available in this browser.";
-        return;
-    }
-
-    locating.value = true;
-    locationError.value = "";
-
-    navigator.geolocation.getCurrentPosition(
-        (position) => {
-            const { latitude, longitude } = position.coords;
-            const b = props.serviceAreaBounds;
-
-            if (latitude < b.min_lat || latitude > b.max_lat || longitude < b.min_lng || longitude > b.max_lng) {
-                locationError.value = "Your current location is outside the service area — enter a zone and location notes instead.";
-                locating.value = false;
-                return;
-            }
-
-            form.latitude = latitude.toFixed(7);
-            form.longitude = longitude.toFixed(7);
-            locating.value = false;
-        },
-        () => {
-            locationError.value = "Couldn't get your location — enter a zone and location notes instead.";
-            locating.value = false;
-        },
-    );
-};
+const pickedLocation = computed({
+    get: () => (form.latitude && form.longitude ? { lat: Number(form.latitude), lng: Number(form.longitude) } : null),
+    set: (value) => {
+        form.latitude = value ? value.lat.toFixed(7) : "";
+        form.longitude = value ? value.lng.toFixed(7) : "";
+    },
+});
 
 const submit = () => {
     form.post(route("customer.leak-reports.store"), {
@@ -158,18 +143,25 @@ const submit = () => {
                     </div>
 
                     <div class="mt-4">
-                        <button
-                            type="button"
-                            @click="useCurrentLocation"
-                            :disabled="locating"
-                            class="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold border border-ocean-300 text-ocean-700 dark:text-neutral-300 hover:bg-ocean-50 disabled:opacity-50"
-                        >
-                            {{ locating ? "Locating…" : "📍 Use My Current Location" }}
-                        </button>
-                        <span v-if="form.latitude" class="ml-2 text-xs text-emerald-700">
+                        <InputLabel value="Pinpoint the location (optional)" />
+                        <p class="text-xs text-ocean-500 dark:text-neutral-400 mb-2">
+                            Click the map, or use your current location — either one also auto-selects the zone above.
+                        </p>
+                        <NetworkMap
+                            mode="picker"
+                            v-model="pickedLocation"
+                            @update:zone="form.zone = $event"
+                            :pipe-segments="pipeSegments"
+                            :zones="zones"
+                            :zone-centers="zoneCenters"
+                            :service-area-bounds="serviceAreaBounds"
+                            @location-error="locationError = $event"
+                            height="280px"
+                        />
+                        <span v-if="form.latitude" class="mt-1 inline-block text-xs text-emerald-700 dark:text-emerald-400">
                             Location captured ({{ form.latitude }}, {{ form.longitude }})
                         </span>
-                        <p v-if="locationError" class="mt-1 text-xs text-red-700">{{ locationError }}</p>
+                        <p v-if="locationError" class="mt-1 text-xs text-red-700 dark:text-red-400">{{ locationError }}</p>
                         <InputError class="mt-1" :message="form.errors.latitude || form.errors.longitude" />
                     </div>
 

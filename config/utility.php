@@ -117,6 +117,26 @@ return [
 
     /*
     |--------------------------------------------------------------------
+    | Zone Centers
+    |--------------------------------------------------------------------
+    | Approximate [lat, lng] center for each configured zone above, kept
+    | within service_area_bounds. No real GIS boundary data exists for
+    | these zones — this is just an anchor point used to center the
+    | network map on a zone, place a zone-wide outage marker, and pick
+    | the nearest zone to a customer's live location on the incident
+    | report forms. Keep this list's keys in sync with "zones" above.
+    */
+
+    "zone_centers" => [
+        "Njoro" => [-0.333, 35.942],
+        "Nakuru Town" => [-0.303, 36.080],
+        "Egerton" => [-0.370, 35.930],
+        "Lanet" => [-0.233, 36.150],
+        "Molo" => [-0.250, 35.870],
+    ],
+
+    /*
+    |--------------------------------------------------------------------
     | Photo Uploads
     |--------------------------------------------------------------------
     | Evidence photos on leak reports, service requests, and completed

@@ -17,7 +17,14 @@ class ServiceRequest extends Model
         "requested_by",
         "type",
         "zone",
+        "latitude",
+        "longitude",
         "description",
+    ];
+
+    protected $casts = [
+        "latitude" => "decimal:7",
+        "longitude" => "decimal:7",
     ];
 
     public function account(): BelongsTo

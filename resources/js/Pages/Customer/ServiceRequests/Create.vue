@@ -4,7 +4,9 @@ import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import PhotoUploadInput from "@/Components/PhotoUploadInput.vue";
+import NetworkMap from "@/Components/NetworkMap.vue";
 import { Head, useForm } from "@inertiajs/vue3";
+import { computed, ref } from "vue";
 
 const props = defineProps({
     types: {
@@ -19,6 +21,18 @@ const props = defineProps({
         type: String,
         required: true,
     },
+    pipeSegments: {
+        type: Array,
+        required: true,
+    },
+    zoneCenters: {
+        type: Object,
+        required: true,
+    },
+    serviceAreaBounds: {
+        type: Object,
+        required: true,
+    },
 });
 
 const typeLabels = {
@@ -31,8 +45,20 @@ const typeLabels = {
 const form = useForm({
     type: props.types[0] || "",
     zone: props.defaultZone,
+    latitude: "",
+    longitude: "",
     description: "",
     photos: [],
+});
+
+const locationError = ref("");
+
+const pickedLocation = computed({
+    get: () => (form.latitude && form.longitude ? { lat: Number(form.latitude), lng: Number(form.longitude) } : null),
+    set: (value) => {
+        form.latitude = value ? value.lat.toFixed(7) : "";
+        form.longitude = value ? value.lng.toFixed(7) : "";
+    },
 });
 
 const submit = () => {
@@ -84,6 +110,29 @@ const submit = () => {
                             <option v-for="z in zones" :key="z" :value="z">{{ z }}</option>
                         </select>
                         <InputError class="mt-2" :message="form.errors.zone" />
+                    </div>
+
+                    <div class="mt-4">
+                        <InputLabel value="Pinpoint the location (optional)" />
+                        <p class="text-xs text-ocean-500 dark:text-neutral-400 mb-2">
+                            Click the map, or use your current location — either one also auto-selects the zone above.
+                        </p>
+                        <NetworkMap
+                            mode="picker"
+                            v-model="pickedLocation"
+                            @update:zone="form.zone = $event"
+                            :pipe-segments="pipeSegments"
+                            :zones="zones"
+                            :zone-centers="zoneCenters"
+                            :service-area-bounds="serviceAreaBounds"
+                            @location-error="locationError = $event"
+                            height="280px"
+                        />
+                        <span v-if="form.latitude" class="mt-1 inline-block text-xs text-emerald-700 dark:text-emerald-400">
+                            Location captured ({{ form.latitude }}, {{ form.longitude }})
+                        </span>
+                        <p v-if="locationError" class="mt-1 text-xs text-red-700 dark:text-red-400">{{ locationError }}</p>
+                        <InputError class="mt-1" :message="form.errors.latitude || form.errors.longitude" />
                     </div>
 
                     <div class="mt-4">

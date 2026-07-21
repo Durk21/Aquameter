@@ -53,6 +53,43 @@ it("rejects a service request type that is not in the configured list", function
     $this->assertDatabaseCount("service_requests", 0);
 });
 
+it("rejects a service request with coordinates outside the configured service area", function () {
+    $customer = User::factory()->create();
+    $customer->assignRole(config("roles.customer"));
+
+    $account = Account::factory()->create(["user_id" => $customer->id]);
+
+    $response = $this->actingAs($customer)->post("/customer/service-requests", [
+        "type" => "meter_inspection",
+        "zone" => $account->zone,
+        "description" => "Meter far away.",
+        "latitude" => 40.7128,
+        "longitude" => -74.0060,
+    ]);
+
+    $response->assertSessionHasErrors("latitude");
+    $this->assertDatabaseCount("service_requests", 0);
+});
+
+it("accepts a service request with coordinates inside the configured service area", function () {
+    $customer = User::factory()->create();
+    $customer->assignRole(config("roles.customer"));
+
+    $account = Account::factory()->create(["user_id" => $customer->id]);
+    $bounds = config("utility.service_area_bounds");
+
+    $response = $this->actingAs($customer)->post("/customer/service-requests", [
+        "type" => "meter_inspection",
+        "zone" => $account->zone,
+        "description" => "Meter needs a look.",
+        "latitude" => ($bounds["min_lat"] + $bounds["max_lat"]) / 2,
+        "longitude" => ($bounds["min_lng"] + $bounds["max_lng"]) / 2,
+    ]);
+
+    $response->assertRedirect(route("customer.service-requests.index"));
+    $this->assertDatabaseHas("service_requests", ["account_id" => $account->id]);
+});
+
 it("prevents a customer from viewing another customer''s service requests", function () {
     $owner = User::factory()->create();
     $owner->assignRole(config("roles.customer"));

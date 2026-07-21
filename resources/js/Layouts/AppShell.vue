@@ -20,11 +20,13 @@ const navByRole = {
         { label: "Leak Reports", route: "customer.leak-reports.index", icon: "droplet" },
         { label: "Service Requests", route: "customer.service-requests.index", icon: "wrench" },
         { label: "Outages", route: "customer.outages.index", icon: "megaphone" },
+        { label: "Network Map", route: "map.index", icon: "map-pin" },
     ],
     technician: [
         { label: "Dashboard", route: "technician.dashboard", icon: "home" },
         { label: "Record Reading", route: "technician.meter-readings.create", icon: "gauge" },
         { label: "Work Orders", route: "technician.work-orders.index", icon: "shield-check" },
+        { label: "Network Map", route: "map.index", icon: "map-pin" },
     ],
     admin: [
         { label: "Dashboard", route: "admin.dashboard", icon: "home" },
@@ -35,11 +37,14 @@ const navByRole = {
         { label: "Staff", route: "admin.staff.index", icon: "user" },
         { label: "Maintenance", route: "admin.maintenance.index", icon: "calendar" },
         { label: "Outages", route: "outages.index", icon: "megaphone" },
+        { label: "Network Map", route: "map.index", icon: "map-pin" },
+        { label: "Pipe Network", route: "admin.pipe-segments.index", icon: "droplets" },
         { label: "Activity Log", route: "activity.index", icon: "history" },
     ],
     management: [
         { label: "Dashboard", route: "management.dashboard", icon: "home" },
         { label: "Outages", route: "outages.index", icon: "megaphone" },
+        { label: "Network Map", route: "map.index", icon: "map-pin" },
         { label: "Activity Log", route: "activity.index", icon: "history" },
     ],
 };

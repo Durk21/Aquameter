@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
+use App\Models\PipeSegment;
 use App\Models\ServiceRequest;
 use App\Services\PhotoUploadService;
 use App\Services\WorkOrderService;
@@ -42,6 +43,9 @@ class ServiceRequestController extends Controller
             "types" => config("utility.service_request_types"),
             "defaultZone" => $account->zone,
             "zones" => config("utility.zones"),
+            "pipeSegments" => PipeSegment::forMap(),
+            "zoneCenters" => config("utility.zone_centers"),
+            "serviceAreaBounds" => config("utility.service_area_bounds"),
         ]);
     }
 
@@ -51,9 +55,13 @@ class ServiceRequestController extends Controller
 
         Gate::authorize("createFor", [ServiceRequest::class, $account]);
 
+        $bounds = config("utility.service_area_bounds");
+
         $validated = $request->validate(array_merge([
             "type" => ["required", Rule::in(config("utility.service_request_types"))],
             "zone" => ["required", Rule::in(config("utility.zones"))],
+            "latitude" => "nullable|numeric|between:{$bounds['min_lat']},{$bounds['max_lat']}",
+            "longitude" => "nullable|numeric|between:{$bounds['min_lng']},{$bounds['max_lng']}",
             "description" => "required|string|max:2000",
         ], PhotoUploadService::validationRules()));
 
@@ -62,6 +70,8 @@ class ServiceRequestController extends Controller
             "requested_by" => $request->user()->id,
             "type" => $validated["type"],
             "zone" => $validated["zone"],
+            "latitude" => $validated["latitude"] ?? null,
+            "longitude" => $validated["longitude"] ?? null,
             "description" => $validated["description"],
         ]);
 

@@ -6,6 +6,7 @@ use App\Enums\LeakSeverity;
 use App\Models\Account;
 use App\Models\LeakReport;
 use App\Models\Meter;
+use App\Models\PipeSegment;
 use App\Services\PhotoUploadService;
 use App\Services\WorkOrderService;
 use Illuminate\Http\RedirectResponse;
@@ -48,6 +49,8 @@ class LeakReportController extends Controller
                 LeakSeverity::cases(),
             ),
             "defaultZone" => $account->zone,
+            "pipeSegments" => PipeSegment::forMap(),
+            "zoneCenters" => config("utility.zone_centers"),
             "serviceAreaBounds" => config("utility.service_area_bounds"),
         ]);
     }

@@ -5,6 +5,7 @@ import Icon from "@/Components/Icon.vue";
 import Card from "@/Components/Card.vue";
 import StatTile from "@/Components/StatTile.vue";
 import DarkModeToggle from "@/Components/DarkModeToggle.vue";
+import NetworkMap from "@/Components/NetworkMap.vue";
 import { useScrollReveal } from "@/composables/useScrollReveal";
 import { useDarkMode } from "@/composables/useDarkMode";
 
@@ -16,6 +17,22 @@ defineProps({
     },
     canRegister: {
         type: Boolean,
+    },
+    pipeSegments: {
+        type: Array,
+        required: true,
+    },
+    zones: {
+        type: Array,
+        required: true,
+    },
+    zoneCenters: {
+        type: Object,
+        required: true,
+    },
+    serviceAreaBounds: {
+        type: Object,
+        required: true,
     },
 });
 
@@ -64,6 +81,7 @@ const previewStats = [
 const { target: heroTarget, revealed: heroRevealed } = useScrollReveal();
 const { target: audiencesTarget, revealed: audiencesRevealed } = useScrollReveal();
 const { target: trustTarget, revealed: trustRevealed } = useScrollReveal();
+const { target: mapTarget, revealed: mapRevealed } = useScrollReveal();
 </script>
 
 <template>
@@ -236,6 +254,32 @@ const { target: trustTarget, revealed: trustRevealed } = useScrollReveal();
                         <p class="text-sm text-ocean-700 dark:text-neutral-300">{{ point }}</p>
                     </Card>
                 </div>
+            </div>
+        </section>
+
+        <!-- Network map -->
+        <section class="bg-ocean-50 dark:bg-white/[0.03] border-y border-ocean-100 dark:border-white/5">
+            <div
+                ref="mapTarget"
+                class="max-w-6xl mx-auto px-5 md:px-8 py-16 transition-all duration-700 ease-out"
+                :class="mapRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'"
+            >
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-display font-bold text-ocean-950 dark:text-white mb-3">
+                        See the network we maintain.
+                    </h2>
+                    <p class="text-ocean-700 dark:text-neutral-300 max-w-lg mx-auto">
+                        Every mapped pipe segment across our coverage zones — sign in to see live incident reports on top of it.
+                    </p>
+                </div>
+                <NetworkMap
+                    read-only
+                    :pipe-segments="pipeSegments"
+                    :zones="zones"
+                    :zone-centers="zoneCenters"
+                    :service-area-bounds="serviceAreaBounds"
+                    height="420px"
+                />
             </div>
         </section>
 

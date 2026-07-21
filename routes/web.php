@@ -6,16 +6,19 @@ use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LeakReportController;
 use App\Http\Controllers\MaintenanceController;
+use App\Http\Controllers\MapController;
 use App\Http\Controllers\MeterController;
 use App\Http\Controllers\MeterReadingController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OutageController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PhotoController;
+use App\Http\Controllers\PipeSegmentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServiceRequestController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\WorkOrderController;
+use App\Models\PipeSegment;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -26,6 +29,10 @@ Route::get("/", function () {
         "canRegister" => Route::has("register"),
         "laravelVersion" => Application::VERSION,
         "phpVersion" => PHP_VERSION,
+        "pipeSegments" => PipeSegment::forMap(),
+        "zones" => config("utility.zones"),
+        "zoneCenters" => config("utility.zone_centers"),
+        "serviceAreaBounds" => config("utility.service_area_bounds"),
     ]);
 });
 
@@ -63,6 +70,8 @@ Route::middleware("auth")->group(function () {
     Route::get("/outages/create", [OutageController::class, "create"])->name("outages.create");
     Route::post("/outages", [OutageController::class, "store"])->name("outages.store");
     Route::patch("/outages/{outage}/resolve", [OutageController::class, "resolve"])->name("outages.resolve");
+
+    Route::get("/map", [MapController::class, "index"])->name("map.index");
 });
 
 Route::middleware(["auth", "verified", "role:customer"])->prefix("customer")->name("customer.")->group(function () {
@@ -127,6 +136,12 @@ Route::middleware(["auth", "verified", "role:admin"])->prefix("admin")->name("ad
     Route::get("/maintenance", [MaintenanceController::class, "index"])->name("maintenance.index");
     Route::get("/maintenance/create", [MaintenanceController::class, "create"])->name("maintenance.create");
     Route::post("/maintenance", [MaintenanceController::class, "store"])->name("maintenance.store");
+
+    Route::get("/pipe-segments", [PipeSegmentController::class, "index"])->name("pipe-segments.index");
+    Route::get("/pipe-segments/create", [PipeSegmentController::class, "create"])->name("pipe-segments.create");
+    Route::post("/pipe-segments", [PipeSegmentController::class, "store"])->name("pipe-segments.store");
+    Route::patch("/pipe-segments/{pipeSegment}/status", [PipeSegmentController::class, "updateStatus"])->name("pipe-segments.update-status");
+    Route::delete("/pipe-segments/{pipeSegment}", [PipeSegmentController::class, "destroy"])->name("pipe-segments.destroy");
 });
 
 Route::middleware(["auth", "verified", "role:management"])->prefix("management")->name("management.")->group(function () {
