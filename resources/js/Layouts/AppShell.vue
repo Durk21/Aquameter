@@ -5,6 +5,7 @@ import AppLogo from "@/Components/AppLogo.vue";
 import Icon from "@/Components/Icon.vue";
 import NotificationBell from "@/Components/NotificationBell.vue";
 import DarkModeToggle from "@/Components/DarkModeToggle.vue";
+import ChatWidget from "@/Components/ChatWidget.vue";
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
@@ -14,7 +15,6 @@ const userMenuOpen = ref(false);
 const navByRole = {
     customer: [
         { label: "Dashboard", route: "customer.dashboard", icon: "home" },
-        { label: "Ask Aquameter", route: "customer.assistant.index", icon: "sparkles" },
         { label: "Meter Readings", route: "customer.meter-readings.index", icon: "gauge" },
         { label: "Bills", route: "customer.bills.index", icon: "clipboard-list" },
         { label: "Complaints", route: "customer.complaints.index", icon: "alert-triangle" },
@@ -187,5 +187,7 @@ const isActive = (routeName) => route().current(routeName);
                 </Link>
             </div>
         </nav>
+
+        <ChatWidget v-if="roles.includes('customer')" />
     </div>
 </template>

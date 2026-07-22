@@ -41,6 +41,7 @@ import {
     ListFilter,
     Search,
     Plus,
+    MessageCircle,
 } from "@lucide/vue";
 
 const props = defineProps({
@@ -95,6 +96,7 @@ const icons = {
     filter: ListFilter,
     search: Search,
     plus: Plus,
+    "message-circle": MessageCircle,
 };
 
 const component = computed(() => icons[props.name] ?? null);

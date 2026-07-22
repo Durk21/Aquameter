@@ -6,21 +6,23 @@ use App\Models\User;
 use OpenAI\Laravel\Facades\OpenAI;
 use OpenAI\Responses\Chat\CreateResponse;
 
-it("renders the assistant page for a customer", function () {
+it("fetches message history for a customer", function () {
     $customer = User::factory()->create();
     $customer->assignRole(config("roles.customer"));
+    ChatMessage::factory()->create(["user_id" => $customer->id, "role" => "user", "content" => "Hi"]);
 
-    $response = $this->actingAs($customer)->get("/customer/assistant");
+    $response = $this->actingAs($customer)->getJson("/customer/assistant/messages");
 
     $response->assertOk();
-    $response->assertInertia(fn ($page) => $page->component("Customer/Assistant/Index"));
+    expect($response->json("messages"))->toHaveCount(1);
+    expect($response->json("messages.0.content"))->toBe("Hi");
 });
 
 it("forbids non-customers from viewing the assistant", function () {
     $admin = User::factory()->create();
     $admin->assignRole(config("roles.admin"));
 
-    $this->actingAs($admin)->get("/customer/assistant")->assertForbidden();
+    $this->actingAs($admin)->get("/customer/assistant/messages")->assertForbidden();
 });
 
 it("responds with a friendly message when the API key isn't configured", function () {

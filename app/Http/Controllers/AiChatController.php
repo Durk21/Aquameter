@@ -7,12 +7,10 @@ use App\Services\AiChatService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Inertia\Inertia;
-use Inertia\Response;
 
 class AiChatController extends Controller
 {
-    public function index(Request $request): Response
+    public function messages(Request $request): JsonResponse
     {
         $messages = ChatMessage::where("user_id", $request->user()->id)
             ->orderBy("created_at")
@@ -20,9 +18,7 @@ class AiChatController extends Controller
             ->get()
             ->map(fn (ChatMessage $message) => $this->present($message));
 
-        return Inertia::render("Customer/Assistant/Index", [
-            "messages" => $messages,
-        ]);
+        return response()->json(["messages" => $messages]);
     }
 
     public function store(Request $request): JsonResponse

@@ -97,7 +97,7 @@ Route::middleware(["auth", "verified", "role:customer"])->prefix("customer")->na
 
     Route::get("/outages", [OutageController::class, "customerIndex"])->name("outages.index");
 
-    Route::get("/assistant", [AiChatController::class, "index"])->name("assistant.index");
+    Route::get("/assistant/messages", [AiChatController::class, "messages"])->name("assistant.messages");
     Route::post("/assistant/messages", [AiChatController::class, "store"])->middleware("throttle:ai-chat")->name("assistant.store");
 });
 
