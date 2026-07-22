@@ -151,13 +151,21 @@ class AiChatService
             }
         }
 
-        $latestReading = MeterReading::whereHas("meter", fn ($query) => $query->where("account_id", $account->id))
+        $recentReadings = MeterReading::whereHas("meter", fn ($query) => $query->where("account_id", $account->id))
+            ->with("meter")
             ->orderByDesc("reading_date")
-            ->first();
+            ->limit(5)
+            ->get();
 
-        if ($latestReading) {
+        if ($recentReadings->isNotEmpty()) {
+            $latestReading = $recentReadings->first();
             $lines[] = "Latest meter reading: {$latestReading->reading_value} on {$latestReading->reading_date->toDateString()}"
-                . ($latestReading->is_anomalous ? " (flagged as unusually high)." : ".");
+                . ($latestReading->is_anomalous ? " (flagged as unusual — see below)." : ".");
+
+            foreach ($recentReadings->where("is_anomalous", true) as $anomalousReading) {
+                $lines[] = "Anomaly on {$anomalousReading->reading_date->toDateString()}: "
+                    . MeterAnomalyDetector::explain($anomalousReading);
+            }
         }
 
         $openLeaks = LeakReport::where("account_id", $account->id)

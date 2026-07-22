@@ -1,7 +1,8 @@
 <script setup>
 import Icon from "@/Components/Icon.vue";
 import InlineDroplet from "@/Components/InlineDroplet.vue";
-import { computed, nextTick, ref } from "vue";
+import { chatBus } from "@/chatBus";
+import { computed, nextTick, ref, watch } from "vue";
 
 const props = defineProps({
     routePrefix: {
@@ -37,11 +38,7 @@ function scrollToBottom() {
     });
 }
 
-async function toggle() {
-    open.value = !open.value;
-    if (!open.value) return;
-
-    scrollToBottom();
+async function ensureLoaded() {
     if (loaded.value) return;
 
     loadingHistory.value = true;
@@ -53,9 +50,31 @@ async function toggle() {
         errorText.value = "Couldn't load your conversation history.";
     } finally {
         loadingHistory.value = false;
-        scrollToBottom();
     }
 }
+
+async function toggle() {
+    open.value = !open.value;
+    if (!open.value) return;
+
+    scrollToBottom();
+    await ensureLoaded();
+    scrollToBottom();
+}
+
+watch(
+    () => chatBus.pendingMessage,
+    async (message) => {
+        if (!message) return;
+        chatBus.pendingMessage = null;
+
+        open.value = true;
+        await ensureLoaded();
+        draft.value = message;
+        scrollToBottom();
+        await send();
+    },
+);
 
 async function send() {
     const message = draft.value.trim();

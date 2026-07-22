@@ -1,5 +1,6 @@
 <script setup>
 import AppShell from "@/Layouts/AppShell.vue";
+import { askAquameter } from "@/chatBus";
 import { Head } from "@inertiajs/vue3";
 
 defineProps({
@@ -8,6 +9,10 @@ defineProps({
         required: true,
     },
 });
+
+function explain(reading) {
+    askAquameter(`Why was my meter reading of ${reading.reading_value} on ${reading.reading_date} flagged as unusual?`);
+}
 </script>
 
 <template>
@@ -60,12 +65,18 @@ defineProps({
                                     {{ reading.reading_date }}
                                 </td>
                                 <td class="px-6 py-4 text-sm">
-                                    <span
-                                        v-if="reading.is_anomalous"
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800"
-                                    >
-                                        Flagged for review
-                                    </span>
+                                    <div v-if="reading.is_anomalous" class="flex items-center gap-2">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                                            Flagged for review
+                                        </span>
+                                        <button
+                                            type="button"
+                                            @click="explain(reading)"
+                                            class="text-xs font-medium text-ocean-600 hover:text-ocean-700 dark:text-ocean-300 dark:hover:text-white underline underline-offset-2"
+                                        >
+                                            Ask Aquameter why
+                                        </button>
+                                    </div>
                                     <span
                                         v-else
                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-ocean-100 text-ocean-800"

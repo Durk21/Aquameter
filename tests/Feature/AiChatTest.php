@@ -4,6 +4,7 @@ use App\Enums\ComplaintStatus;
 use App\Models\Account;
 use App\Models\ChatMessage;
 use App\Models\Complaint;
+use App\Models\Meter;
 use App\Models\User;
 use OpenAI\Laravel\Facades\OpenAI;
 use OpenAI\Responses\Chat\CreateResponse;
@@ -167,5 +168,39 @@ it("grounds admin replies in the current triage data", function () {
         $system = collect($parameters["messages"])->firstWhere("role", "system")["content"] ?? "";
 
         return str_contains($system, "No water pressure") && str_contains($system, "Open complaints");
+    });
+});
+
+it("grounds customer replies in a plain-language anomaly explanation", function () {
+    config(["openai.api_key" => "test-key"]);
+
+    OpenAI::fake([
+        CreateResponse::fake([
+            "choices" => [
+                ["message" => ["content" => "That reading was flagged because usage was far above your normal average."]],
+            ],
+        ]),
+    ]);
+
+    $customer = User::factory()->create();
+    $customer->assignRole(config("roles.customer"));
+    $account = Account::factory()->create(["user_id" => $customer->id]);
+    $meter = Meter::factory()->create(["account_id" => $account->id]);
+
+    $meter->readings()->create(["recorded_by" => $customer->id, "reading_value" => 100, "reading_date" => now()->subDays(60)]);
+    $meter->readings()->create(["recorded_by" => $customer->id, "reading_value" => 110, "reading_date" => now()->subDays(30)]);
+    $meter->readings()->create(["recorded_by" => $customer->id, "reading_value" => 500, "reading_date" => now(), "is_anomalous" => true]);
+
+    $response = $this->actingAs($customer)->postJson("/customer/assistant/messages", [
+        "message" => "Why was my last reading flagged?",
+    ]);
+
+    $response->assertOk();
+    expect($response->json("reply.content"))->toBe("That reading was flagged because usage was far above your normal average.");
+
+    OpenAI::assertSent(\OpenAI\Resources\Chat::class, function ($method, $parameters) {
+        $system = collect($parameters["messages"])->firstWhere("role", "system")["content"] ?? "";
+
+        return str_contains($system, "Anomaly on") && str_contains($system, "typical average of 10");
     });
 });
