@@ -50,8 +50,9 @@ class BillController extends Controller
 
         $bills = Bill::with(["account.user", "payment"])
             ->orderByDesc("created_at")
-            ->get()
-            ->map(function (Bill $bill) {
+            ->paginate(20)
+            ->withQueryString()
+            ->through(function (Bill $bill) {
                 return [
                     "id" => $bill->id,
                     "customer_name" => $bill->account->user->name,

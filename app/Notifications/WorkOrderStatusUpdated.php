@@ -5,11 +5,15 @@ namespace App\Notifications;
 use App\Enums\WorkOrderStatus;
 use App\Enums\WorkOrderType;
 use App\Models\WorkOrder;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class WorkOrderStatusUpdated extends Notification
+class WorkOrderStatusUpdated extends Notification implements ShouldQueue
 {
+    use Queueable;
+
     public function __construct(protected WorkOrder $workOrder)
     {
     }

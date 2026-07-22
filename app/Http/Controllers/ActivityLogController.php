@@ -17,9 +17,9 @@ class ActivityLogController extends Controller
 
         $logs = ActivityLog::with("causedBy")
             ->latest()
-            ->limit(100)
-            ->get()
-            ->map(fn (ActivityLog $log) => [
+            ->paginate(25)
+            ->withQueryString()
+            ->through(fn (ActivityLog $log) => [
                 "id" => $log->id,
                 "subject_type" => class_basename($log->subject_type),
                 "subject_id" => $log->subject_id,

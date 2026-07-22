@@ -117,8 +117,9 @@ class ComplaintController extends Controller
         $complaints = Complaint::with(["account.user", "bill"])
             ->orderByRaw($this->statusSortOrder())
             ->orderByDesc("created_at")
-            ->get()
-            ->map(function (Complaint $complaint) {
+            ->paginate(20)
+            ->withQueryString()
+            ->through(function (Complaint $complaint) {
                 return [
                     "id" => $complaint->id,
                     "subject" => $complaint->subject,

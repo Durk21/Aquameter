@@ -1,6 +1,7 @@
 <script setup>
 import AppShell from "@/Layouts/AppShell.vue";
 import PhotoGallery from "@/Components/PhotoGallery.vue";
+import Pagination from "@/Components/Pagination.vue";
 import { Head, Link } from "@inertiajs/vue3";
 
 defineProps({
@@ -9,11 +10,11 @@ defineProps({
         required: true,
     },
     pipeline: {
-        type: Array,
+        type: Object,
         required: true,
     },
     history: {
-        type: Array,
+        type: Object,
         required: true,
     },
     noticeDays: {
@@ -90,11 +91,11 @@ const statusStyles = {
             <section>
                 <h3 class="font-semibold text-ocean-900 dark:text-white mb-3">Active Pipeline</h3>
                 <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-ocean-100 dark:border-white/5 shadow-soft overflow-hidden">
-                    <div v-if="pipeline.length === 0" class="p-6 text-ocean-600 dark:text-neutral-400 text-sm">
+                    <div v-if="pipeline.data.length === 0" class="p-6 text-ocean-600 dark:text-neutral-400 text-sm">
                         No active work orders.
                     </div>
                     <div v-else class="divide-y divide-ocean-100 dark:divide-white/5">
-                        <div v-for="wo in pipeline" :key="wo.id" class="p-4">
+                        <div v-for="wo in pipeline.data" :key="wo.id" class="p-4">
                             <div class="flex items-start justify-between gap-3 mb-2">
                                 <div>
                                     <p class="font-medium text-ocean-900 dark:text-white">
@@ -178,17 +179,18 @@ const statusStyles = {
                         </div>
                     </div>
                 </div>
+                <Pagination :paginator="pipeline" />
             </section>
 
             <!-- History -->
             <section>
                 <h3 class="font-semibold text-ocean-900 dark:text-white mb-3">Recent History</h3>
                 <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-ocean-100 dark:border-white/5 shadow-soft overflow-hidden">
-                    <div v-if="history.length === 0" class="p-6 text-ocean-600 dark:text-neutral-400 text-sm">
+                    <div v-if="history.data.length === 0" class="p-6 text-ocean-600 dark:text-neutral-400 text-sm">
                         No closed work orders yet.
                     </div>
                     <div v-else class="divide-y divide-ocean-100 dark:divide-white/5">
-                        <div v-for="wo in history" :key="wo.id" class="p-4">
+                        <div v-for="wo in history.data" :key="wo.id" class="p-4">
                             <div class="flex items-center justify-between gap-3">
                                 <div>
                                     <p class="font-medium text-ocean-900 dark:text-white">
@@ -211,6 +213,7 @@ const statusStyles = {
                         </div>
                     </div>
                 </div>
+                <Pagination :paginator="history" />
             </section>
         </div>
     </AppShell>

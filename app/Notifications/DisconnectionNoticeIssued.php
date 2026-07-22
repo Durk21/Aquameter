@@ -3,11 +3,15 @@
 namespace App\Notifications;
 
 use App\Models\WorkOrder;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class DisconnectionNoticeIssued extends Notification
+class DisconnectionNoticeIssued extends Notification implements ShouldQueue
 {
+    use Queueable;
+
     public function __construct(protected WorkOrder $workOrder)
     {
     }

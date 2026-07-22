@@ -16,7 +16,7 @@ it("surfaces customer phone to admin on the work orders pipeline", function () {
 
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
-        ->where("pipeline.0.phone", "0711000111"));
+        ->where("pipeline.data.0.phone", "0711000111"));
 });
 
 it("surfaces customer phone to a technician's claimed jobs", function () {
@@ -85,5 +85,5 @@ it("surfaces customer phone to admin on the bills list", function () {
 
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
-        ->where("bills.0.phone", "0744000444"));
+        ->where("bills.data.0.phone", "0744000444"));
 });

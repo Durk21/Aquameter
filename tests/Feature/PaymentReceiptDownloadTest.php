@@ -136,5 +136,5 @@ it("exposes the payment id on the admin bills list", function () {
 
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
-        ->where("bills.0.payment_id", $bill->payment->id));
+        ->where("bills.data.0.payment_id", $bill->payment->id));
 });

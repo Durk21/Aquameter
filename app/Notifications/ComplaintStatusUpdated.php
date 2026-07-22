@@ -3,11 +3,15 @@
 namespace App\Notifications;
 
 use App\Models\Complaint;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class ComplaintStatusUpdated extends Notification
+class ComplaintStatusUpdated extends Notification implements ShouldQueue
 {
+    use Queueable;
+
     public function __construct(protected Complaint $complaint)
     {
     }

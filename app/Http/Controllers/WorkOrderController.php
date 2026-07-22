@@ -37,15 +37,16 @@ class WorkOrderController extends Controller
         $pipeline = WorkOrder::whereNotIn("status", [WorkOrderStatus::Completed, WorkOrderStatus::Cancelled])
             ->with(["account.user", "sourceable.photos", "photos"])
             ->orderByDesc("created_at")
-            ->get()
-            ->map(fn (WorkOrder $workOrder) => $this->summarizeWorkOrder($workOrder));
+            ->paginate(20, ["*"], "pipeline_page")
+            ->withQueryString()
+            ->through(fn (WorkOrder $workOrder) => $this->summarizeWorkOrder($workOrder));
 
         $history = WorkOrder::whereIn("status", [WorkOrderStatus::Completed, WorkOrderStatus::Cancelled])
             ->with(["account.user", "sourceable.photos", "photos"])
             ->orderByDesc("updated_at")
-            ->limit(20)
-            ->get()
-            ->map(fn (WorkOrder $workOrder) => $this->summarizeWorkOrder($workOrder));
+            ->paginate(20, ["*"], "history_page")
+            ->withQueryString()
+            ->through(fn (WorkOrder $workOrder) => $this->summarizeWorkOrder($workOrder));
 
         return Inertia::render("Admin/WorkOrders/Index", [
             "defaultedAccounts" => $defaultedAccounts,

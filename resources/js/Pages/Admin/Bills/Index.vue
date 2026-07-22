@@ -3,11 +3,12 @@ import AppShell from "@/Layouts/AppShell.vue";
 import Card from "@/Components/Card.vue";
 import Badge from "@/Components/Badge.vue";
 import EmptyState from "@/Components/EmptyState.vue";
+import Pagination from "@/Components/Pagination.vue";
 import { Head, Link } from "@inertiajs/vue3";
 
 defineProps({
     bills: {
-        type: Array,
+        type: Object,
         required: true,
     },
 });
@@ -36,10 +37,10 @@ const statusTones = {
             </h1>
 
             <Card :padded="false">
-                <EmptyState v-if="bills.length === 0" icon="clipboard-list" title="No bills yet" />
+                <EmptyState v-if="bills.data.length === 0" icon="clipboard-list" title="No bills yet" />
 
                 <div v-else class="divide-y divide-ocean-100 dark:divide-white/5">
-                    <div v-for="bill in bills" :key="bill.id" class="flex flex-wrap items-center justify-between gap-3 p-4">
+                    <div v-for="bill in bills.data" :key="bill.id" class="flex flex-wrap items-center justify-between gap-3 p-4">
                         <div>
                             <p class="font-medium text-ocean-900 dark:text-white">{{ bill.customer_name }}</p>
                             <p class="text-xs text-ocean-500 dark:text-neutral-400 font-mono mt-0.5">
@@ -81,6 +82,8 @@ const statusTones = {
                     </div>
                 </div>
             </Card>
+
+            <Pagination :paginator="bills" />
         </div>
     </AppShell>
 </template>

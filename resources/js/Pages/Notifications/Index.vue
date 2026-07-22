@@ -1,10 +1,11 @@
 <script setup>
 import AppShell from "@/Layouts/AppShell.vue";
+import Pagination from "@/Components/Pagination.vue";
 import { Head, router } from "@inertiajs/vue3";
 
 defineProps({
-    notifications: {
-        type: Array,
+    notificationHistory: {
+        type: Object,
         required: true,
     },
 });
@@ -38,13 +39,13 @@ function markRead(notification) {
                 Notifications
             </h1>
 
-            <div v-if="notifications.length === 0" class="bg-white dark:bg-neutral-900 rounded-2xl border border-ocean-100 dark:border-white/5 shadow-soft p-6 text-ocean-600 dark:text-neutral-400">
+            <div v-if="notificationHistory.data.length === 0" class="bg-white dark:bg-neutral-900 rounded-2xl border border-ocean-100 dark:border-white/5 shadow-soft p-6 text-ocean-600 dark:text-neutral-400">
                 No notifications yet.
             </div>
 
             <div v-else class="bg-white dark:bg-neutral-900 rounded-2xl border border-ocean-100 dark:border-white/5 shadow-soft overflow-hidden">
                 <button
-                    v-for="n in notifications"
+                    v-for="n in notificationHistory.data"
                     :key="n.id"
                     @click="markRead(n)"
                     class="w-full text-left px-5 py-4 border-b border-ocean-50 last:border-none hover:bg-ocean-50 transition-colors flex items-start gap-3"
@@ -60,6 +61,8 @@ function markRead(notification) {
                     </div>
                 </button>
             </div>
+
+            <Pagination :paginator="notificationHistory" />
         </div>
     </AppShell>
 </template>

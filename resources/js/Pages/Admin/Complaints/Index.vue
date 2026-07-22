@@ -1,10 +1,11 @@
 <script setup>
 import AppShell from "@/Layouts/AppShell.vue";
+import Pagination from "@/Components/Pagination.vue";
 import { Head, Link } from "@inertiajs/vue3";
 
 defineProps({
     complaints: {
-        type: Array,
+        type: Object,
         required: true,
     },
 });
@@ -33,13 +34,13 @@ const statusStyles = {
                 Complaints
             </h1>
 
-            <div v-if="complaints.length === 0" class="bg-white dark:bg-neutral-900 rounded-2xl border border-ocean-100 dark:border-white/5 shadow-soft p-6 text-ocean-600 dark:text-neutral-400">
+            <div v-if="complaints.data.length === 0" class="bg-white dark:bg-neutral-900 rounded-2xl border border-ocean-100 dark:border-white/5 shadow-soft p-6 text-ocean-600 dark:text-neutral-400">
                 No complaints have been submitted.
             </div>
 
             <div v-else class="space-y-4">
                 <Link
-                    v-for="complaint in complaints"
+                    v-for="complaint in complaints.data"
                     :key="complaint.id"
                     :href="route('admin.complaints.show', complaint.id)"
                     class="block bg-white dark:bg-neutral-900 rounded-2xl border border-ocean-100 dark:border-white/5 shadow-soft hover:shadow-elevated hover:border-ocean-300 dark:hover:border-white/20 hover:-translate-y-0.5 transition-all duration-200 p-5"
@@ -64,6 +65,8 @@ const statusStyles = {
                     </p>
                 </Link>
             </div>
+
+            <Pagination :paginator="complaints" />
         </div>
     </AppShell>
 </template>
