@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\AiChatController;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\DashboardController;
@@ -95,6 +96,9 @@ Route::middleware(["auth", "verified", "role:customer"])->prefix("customer")->na
     Route::post("/service-requests", [ServiceRequestController::class, "store"])->middleware("throttle:submissions")->name("service-requests.store");
 
     Route::get("/outages", [OutageController::class, "customerIndex"])->name("outages.index");
+
+    Route::get("/assistant", [AiChatController::class, "index"])->name("assistant.index");
+    Route::post("/assistant/messages", [AiChatController::class, "store"])->middleware("throttle:ai-chat")->name("assistant.store");
 });
 
 Route::middleware(["auth", "verified", "role:technician"])->prefix("technician")->name("technician.")->group(function () {

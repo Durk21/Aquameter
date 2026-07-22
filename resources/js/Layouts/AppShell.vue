@@ -14,6 +14,7 @@ const userMenuOpen = ref(false);
 const navByRole = {
     customer: [
         { label: "Dashboard", route: "customer.dashboard", icon: "home" },
+        { label: "Ask Aquameter", route: "customer.assistant.index", icon: "sparkles" },
         { label: "Meter Readings", route: "customer.meter-readings.index", icon: "gauge" },
         { label: "Bills", route: "customer.bills.index", icon: "clipboard-list" },
         { label: "Complaints", route: "customer.complaints.index", icon: "alert-triangle" },

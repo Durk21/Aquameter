@@ -170,4 +170,18 @@ return [
 
     "submission_rate_limit" => (int) env("UTILITY_SUBMISSION_RATE_LIMIT", 10),
     "submission_rate_window_minutes" => (int) env("UTILITY_SUBMISSION_RATE_WINDOW_MINUTES", 1),
+
+    /*
+    |--------------------------------------------------------------------
+    | AI Chat Assistant
+    |--------------------------------------------------------------------
+    | "Ask Aquameter" — the customer-facing chat assistant. Model is
+    | intentionally a cheap/fast one since it only explains data handed
+    | to it in the system prompt, not complex reasoning. Rate limited
+    | the same way submissions are, since every message costs real money.
+    */
+
+    "ai_chat_model" => env("OPENAI_CHAT_MODEL", "gpt-4o-mini"),
+    "ai_chat_rate_limit" => (int) env("UTILITY_AI_CHAT_RATE_LIMIT", 20),
+    "ai_chat_rate_window_minutes" => (int) env("UTILITY_AI_CHAT_RATE_WINDOW_MINUTES", 1),
 ];
