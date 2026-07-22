@@ -1,7 +1,24 @@
 <script setup>
 import Icon from "@/Components/Icon.vue";
 import InlineDroplet from "@/Components/InlineDroplet.vue";
-import { nextTick, ref } from "vue";
+import { computed, nextTick, ref } from "vue";
+
+const props = defineProps({
+    routePrefix: {
+        type: String,
+        default: "customer",
+    },
+    variant: {
+        type: String,
+        default: "customer",
+    },
+});
+
+const emptyStateText = computed(() =>
+    props.variant === "admin"
+        ? "Ask about open complaints, the work order pipeline, or which zones need attention."
+        : "Ask about your bills, meter readings, or the status of anything you've reported.",
+);
 
 const open = ref(false);
 const loaded = ref(false);
@@ -29,7 +46,7 @@ async function toggle() {
 
     loadingHistory.value = true;
     try {
-        const response = await window.axios.get(route("customer.assistant.messages"));
+        const response = await window.axios.get(route(`${props.routePrefix}.assistant.messages`));
         thread.value = response.data.messages;
         loaded.value = true;
     } catch (error) {
@@ -56,7 +73,7 @@ async function send() {
     scrollToBottom();
 
     try {
-        const response = await window.axios.post(route("customer.assistant.store"), { message });
+        const response = await window.axios.post(route(`${props.routePrefix}.assistant.store`), { message });
         thread.value.push(response.data.reply);
     } catch (error) {
         errorText.value = error.response?.data?.errors?.message?.[0] || "Couldn't send that — please try again.";
@@ -114,7 +131,7 @@ function formatTime(iso) {
                         <Icon name="sparkles" :size="18" class="text-white" />
                     </div>
                     <p class="text-xs text-ocean-500 dark:text-neutral-400 max-w-[220px]">
-                        Ask about your bills, meter readings, or the status of anything you've reported.
+                        {{ emptyStateText }}
                     </p>
                 </div>
 

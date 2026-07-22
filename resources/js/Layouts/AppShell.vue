@@ -57,6 +57,12 @@ const navItems = computed(() => {
     return [];
 });
 
+const assistantRolePrefix = computed(() => {
+    if (roles.value.includes("customer")) return "customer";
+    if (roles.value.includes("admin")) return "admin";
+    return null;
+});
+
 const isActive = (routeName) => route().current(routeName);
 </script>
 
@@ -188,6 +194,6 @@ const isActive = (routeName) => route().current(routeName);
             </div>
         </nav>
 
-        <ChatWidget v-if="roles.includes('customer')" />
+        <ChatWidget v-if="assistantRolePrefix" :route-prefix="assistantRolePrefix" :variant="assistantRolePrefix" />
     </div>
 </template>

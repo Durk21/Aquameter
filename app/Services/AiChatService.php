@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Enums\ChatRole;
+use App\Enums\ComplaintStatus;
+use App\Enums\WorkOrderStatus;
 use App\Models\Account;
 use App\Models\Bill;
 use App\Models\ChatMessage;
@@ -11,6 +13,7 @@ use App\Models\LeakReport;
 use App\Models\MeterReading;
 use App\Models\ServiceRequest;
 use App\Models\User;
+use App\Models\WorkOrder;
 use Illuminate\Support\Facades\Log;
 use OpenAI\Laravel\Facades\OpenAI;
 use Throwable;
@@ -18,6 +21,12 @@ use Throwable;
 class AiChatService
 {
     protected const HISTORY_LIMIT = 10;
+
+    protected const OPEN_COMPLAINT_STATUSES = [
+        ComplaintStatus::Submitted,
+        ComplaintStatus::UnderReview,
+        ComplaintStatus::Approved,
+    ];
 
     /**
      * Stores the customer's message, asks the model for a reply grounded
@@ -36,7 +45,7 @@ class AiChatService
         if (blank(config("openai.api_key"))) {
             return self::storeAssistantReply(
                 $user,
-                "The AI assistant isn't configured yet — an admin needs to add an OpenAI API key before I can help with account questions.",
+                "The AI assistant isn't configured yet — an admin needs to add an OpenAI API key before I can help.",
             );
         }
 
@@ -89,6 +98,18 @@ class AiChatService
 
     protected static function systemPrompt(User $user): string
     {
+        if (self::isAdmin($user)) {
+            return implode("\n", [
+                "You are \"Ask Aquameter\", the internal triage assistant for water utility staff.",
+                "Answer only using the operational data provided below — never invent complaints, work orders, or statuses.",
+                "You can only explain and summarize data. You cannot perform actions (you cannot approve a complaint, assign a technician, change a status, etc.) — if the admin asks for an action, tell them where to do it in the app instead (e.g. \"you can approve that complaint from the Complaints page\").",
+                "Help the admin prioritize — call out anything stalled or overdue, and be specific about which zone or record you mean. Keep answers short and plain-language. If something isn't in the data below, say you don't have that information rather than guessing.",
+                "",
+                "Operational context:",
+                self::triageContext(),
+            ]);
+        }
+
         return implode("\n", [
             "You are \"Ask Aquameter\", the customer support assistant for a water utility.",
             "Answer only using the account data provided below — never invent bills, readings, or statuses.",
@@ -98,6 +119,11 @@ class AiChatService
             "Account context:",
             self::accountContext($user),
         ]);
+    }
+
+    protected static function isAdmin(User $user): bool
+    {
+        return $user->hasRole(config("roles.admin"));
     }
 
     protected static function accountContext(User $user): string
@@ -156,6 +182,48 @@ class AiChatService
             ->get();
         foreach ($openComplaints as $complaint) {
             $lines[] = "Complaint \"{$complaint->subject}\" — status: {$complaint->status->label()}.";
+        }
+
+        return implode("\n", $lines);
+    }
+
+    protected static function triageContext(): string
+    {
+        $stallDays = (int) config("utility.stall_threshold_days");
+        $stallThreshold = now()->subDays($stallDays);
+
+        $openComplaintsQuery = Complaint::whereIn("status", self::OPEN_COMPLAINT_STATUSES);
+        $stalledComplaints = (clone $openComplaintsQuery)->where("created_at", "<=", $stallThreshold)->count();
+
+        $openWorkOrdersQuery = WorkOrder::whereNotIn("status", [WorkOrderStatus::Completed, WorkOrderStatus::Cancelled]);
+        $stalledWorkOrders = WorkOrder::where("status", WorkOrderStatus::Approved)
+            ->where("created_at", "<=", $stallThreshold)
+            ->count();
+
+        $lines = [];
+        $lines[] = "Open complaints: {$openComplaintsQuery->count()} ({$stalledComplaints} open longer than {$stallDays} days).";
+
+        $recentComplaints = (clone $openComplaintsQuery)->with("account")->latest()->limit(5)->get();
+        foreach ($recentComplaints as $complaint) {
+            $stalled = $complaint->created_at->lte($stallThreshold) ? " — stalled" : "";
+            $zone = $complaint->account?->zone ?? "unknown zone";
+            $lines[] = "- \"{$complaint->subject}\" (zone {$zone}, status: {$complaint->status->label()}, opened {$complaint->created_at->toDateString()}){$stalled}.";
+        }
+
+        $lines[] = "";
+        $lines[] = "Active work order pipeline: {$openWorkOrdersQuery->count()} ({$stalledWorkOrders} unclaimed longer than {$stallDays} days).";
+
+        $recentWorkOrders = (clone $openWorkOrdersQuery)->latest()->limit(5)->get();
+        foreach ($recentWorkOrders as $order) {
+            $overdue = $order->notice_deadline && $order->notice_deadline->isPast() ? " — notice deadline passed" : "";
+            $zone = $order->dispatchZone() ?? "unknown zone";
+            $lines[] = "- {$order->type->label()} in zone {$zone}, status: {$order->status->label()}, opened {$order->created_at->toDateString()}{$overdue}.";
+        }
+
+        $byZone = (clone $openWorkOrdersQuery)->get()->groupBy(fn (WorkOrder $order) => $order->dispatchZone() ?? "unknown zone")->map->count();
+        if ($byZone->isNotEmpty()) {
+            $lines[] = "";
+            $lines[] = "Open work orders by zone: ".$byZone->map(fn ($count, $zone) => "{$zone}: {$count}")->implode(", ").".";
         }
 
         return implode("\n", $lines);

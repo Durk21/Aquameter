@@ -1,7 +1,9 @@
 <?php
 
+use App\Enums\ComplaintStatus;
 use App\Models\Account;
 use App\Models\ChatMessage;
+use App\Models\Complaint;
 use App\Models\User;
 use OpenAI\Laravel\Facades\OpenAI;
 use OpenAI\Responses\Chat\CreateResponse;
@@ -107,4 +109,63 @@ it("rejects an empty message", function () {
 
     $response->assertStatus(422);
     $this->assertDatabaseCount("chat_messages", 0);
+});
+
+it("fetches message history for an admin", function () {
+    $admin = User::factory()->create();
+    $admin->assignRole(config("roles.admin"));
+    ChatMessage::factory()->create(["user_id" => $admin->id, "role" => "user", "content" => "Anything urgent?"]);
+
+    $response = $this->actingAs($admin)->getJson("/admin/assistant/messages");
+
+    $response->assertOk();
+    expect($response->json("messages"))->toHaveCount(1);
+    expect($response->json("messages.0.content"))->toBe("Anything urgent?");
+});
+
+it("forbids non-admins from viewing the admin assistant", function () {
+    $customer = User::factory()->create();
+    $customer->assignRole(config("roles.customer"));
+
+    $this->actingAs($customer)->get("/admin/assistant/messages")->assertForbidden();
+});
+
+it("grounds admin replies in the current triage data", function () {
+    config(["openai.api_key" => "test-key"]);
+
+    OpenAI::fake([
+        CreateResponse::fake([
+            "choices" => [
+                ["message" => ["content" => "You have 1 open complaint in Lanet that needs attention."]],
+            ],
+        ]),
+    ]);
+
+    $admin = User::factory()->create();
+    $admin->assignRole(config("roles.admin"));
+
+    $customer = User::factory()->create();
+    $customer->assignRole(config("roles.customer"));
+    $customerAccount = Account::factory()->create(["user_id" => $customer->id, "zone" => "Lanet"]);
+
+    Complaint::create([
+        "account_id" => $customerAccount->id,
+        "submitted_by" => $customer->id,
+        "subject" => "No water pressure",
+        "description" => "Pressure has been low for days.",
+        "status" => ComplaintStatus::Submitted,
+    ]);
+
+    $response = $this->actingAs($admin)->postJson("/admin/assistant/messages", [
+        "message" => "What needs my attention?",
+    ]);
+
+    $response->assertOk();
+    expect($response->json("reply.content"))->toBe("You have 1 open complaint in Lanet that needs attention.");
+
+    OpenAI::assertSent(\OpenAI\Resources\Chat::class, function ($method, $parameters) {
+        $system = collect($parameters["messages"])->firstWhere("role", "system")["content"] ?? "";
+
+        return str_contains($system, "No water pressure") && str_contains($system, "Open complaints");
+    });
 });

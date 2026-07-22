@@ -146,6 +146,9 @@ Route::middleware(["auth", "verified", "role:admin"])->prefix("admin")->name("ad
     Route::post("/pipe-segments", [PipeSegmentController::class, "store"])->name("pipe-segments.store");
     Route::patch("/pipe-segments/{pipeSegment}/status", [PipeSegmentController::class, "updateStatus"])->name("pipe-segments.update-status");
     Route::delete("/pipe-segments/{pipeSegment}", [PipeSegmentController::class, "destroy"])->name("pipe-segments.destroy");
+
+    Route::get("/assistant/messages", [AiChatController::class, "messages"])->name("assistant.messages");
+    Route::post("/assistant/messages", [AiChatController::class, "store"])->middleware("throttle:ai-chat")->name("assistant.store");
 });
 
 Route::middleware(["auth", "verified", "role:management"])->prefix("management")->name("management.")->group(function () {
