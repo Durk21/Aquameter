@@ -33,6 +33,7 @@ const navByRole = {
         { label: "Dashboard", route: "admin.dashboard", icon: "home" },
         { label: "Register Meter", route: "admin.meters.create", icon: "wrench" },
         { label: "Bills", route: "admin.bills.index", icon: "clipboard-list" },
+        { label: "Pending Cash", route: "admin.payment-transactions.index", icon: "banknote" },
         { label: "Complaints", route: "admin.complaints.index", icon: "alert-triangle" },
         { label: "Work Orders", route: "admin.work-orders.index", icon: "shield-check" },
         { label: "Staff", route: "admin.staff.index", icon: "user" },

@@ -42,6 +42,9 @@ import {
     Search,
     Plus,
     MessageCircle,
+    Banknote,
+    Landmark,
+    Loader,
 } from "@lucide/vue";
 
 const props = defineProps({
@@ -97,6 +100,9 @@ const icons = {
     search: Search,
     plus: Plus,
     "message-circle": MessageCircle,
+    banknote: Banknote,
+    landmark: Landmark,
+    loader: Loader,
 };
 
 const component = computed(() => icons[props.name] ?? null);

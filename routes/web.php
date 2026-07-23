@@ -3,6 +3,7 @@
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AiChatController;
 use App\Http\Controllers\BillController;
+use App\Http\Controllers\BillPaymentController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LeakReportController;
@@ -10,9 +11,12 @@ use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\MapController;
 use App\Http\Controllers\MeterController;
 use App\Http\Controllers\MeterReadingController;
+use App\Http\Controllers\MpesaWebhookController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OutageController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PaymentTransactionController;
+use App\Http\Controllers\PesapalWebhookController;
 use App\Http\Controllers\PhotoController;
 use App\Http\Controllers\PipeSegmentController;
 use App\Http\Controllers\ProfileController;
@@ -36,6 +40,11 @@ Route::get("/", function () {
         "serviceAreaBounds" => config("utility.service_area_bounds"),
     ]);
 });
+
+// Public, unauthenticated — Safaricom/Pesapal call these server-to-
+// server. CSRF-exempted in bootstrap/app.php.
+Route::post("/webhooks/mpesa/callback", [MpesaWebhookController::class, "callback"])->name("webhooks.mpesa.callback");
+Route::post("/webhooks/pesapal/ipn", [PesapalWebhookController::class, "ipn"])->name("webhooks.pesapal.ipn");
 
 Route::get("/dashboard", function () {
     $user = request()->user();
@@ -80,6 +89,14 @@ Route::middleware(["auth", "verified", "role:customer"])->prefix("customer")->na
 
     Route::get("/meter-readings", [MeterReadingController::class, "index"])->name("meter-readings.index");
     Route::get("/bills", [BillController::class, "index"])->name("bills.index");
+
+    Route::get("/bills/{bill}/pay", [BillPaymentController::class, "show"])->name("bills.pay");
+    Route::post("/bills/{bill}/pay/mpesa", [BillPaymentController::class, "mpesa"])->middleware("throttle:payments")->name("bills.pay.mpesa");
+    Route::post("/bills/{bill}/pay/bank", [BillPaymentController::class, "bank"])->middleware("throttle:payments")->name("bills.pay.bank");
+    Route::post("/bills/{bill}/pay/cash", [BillPaymentController::class, "cash"])->middleware("throttle:payments")->name("bills.pay.cash");
+    Route::get("/payment-transactions/{paymentTransaction}/status", [PaymentTransactionController::class, "status"])->middleware("throttle:payments")->name("payment-transactions.status");
+    Route::get("/payment-transactions/{paymentTransaction}/pesapal-return", [PaymentTransactionController::class, "pesapalReturn"])->name("payment-transactions.pesapal-return");
+
     Route::get("/complaints", [ComplaintController::class, "index"])->name("complaints.index");
     Route::get("/complaints/create", [ComplaintController::class, "create"])->name("complaints.create");
     Route::post("/complaints", [ComplaintController::class, "store"])->middleware("throttle:submissions")->name("complaints.store");
@@ -120,6 +137,11 @@ Route::middleware(["auth", "verified", "role:admin"])->prefix("admin")->name("ad
 
     Route::get("/bills/{bill}/payments/create", [PaymentController::class, "create"])->name("payments.create");
     Route::post("/bills/{bill}/payments", [PaymentController::class, "store"])->name("payments.store");
+
+    // Confirming a cash-payment intent finalizes it exactly like manual
+    // payment recording — stays admin-only for the same reason.
+    Route::get("/payment-transactions", [PaymentTransactionController::class, "adminIndex"])->name("payment-transactions.index");
+    Route::patch("/payment-transactions/{paymentTransaction}/confirm", [PaymentTransactionController::class, "confirmCash"])->name("payment-transactions.confirm");
 
     Route::get("/work-orders", [WorkOrderController::class, "adminIndex"])->name("work-orders.index");
     Route::post("/accounts/{account}/disconnection-notice", [WorkOrderController::class, "initiateDisconnection"])->name("work-orders.initiate-disconnection");

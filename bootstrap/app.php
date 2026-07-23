@@ -20,6 +20,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             "role" => \Spatie\Permission\Middleware\RoleMiddleware::class,
         ]);
+
+        // M-Pesa/Pesapal call these server-to-server with no Laravel
+        // session or CSRF token — only exemption in this app.
+        $middleware->validateCsrfTokens(except: [
+            "webhooks/*",
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

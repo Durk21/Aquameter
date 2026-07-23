@@ -46,6 +46,13 @@ class AppServiceProvider extends ServiceProvider
             )->by($request->user()?->id ?: $request->ip());
         });
 
+        RateLimiter::for("payments", function ($request) {
+            return Limit::perMinutes(
+                config("utility.payments_rate_window_minutes"),
+                config("utility.payments_rate_limit"),
+            )->by($request->user()?->id ?: $request->ip());
+        });
+
         Bill::observe(BillObserver::class);
         Complaint::observe(ComplaintObserver::class);
         WorkOrder::observe(WorkOrderObserver::class);

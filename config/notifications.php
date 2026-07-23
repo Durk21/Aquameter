@@ -17,5 +17,6 @@ return [
         "disconnection_notices" => "Disconnection notices",
         "complaint_updates" => "Complaint updates",
         "outage_broadcasts" => "Outage notices",
+        "payment_succeeded" => "Payment confirmations",
     ],
 ];

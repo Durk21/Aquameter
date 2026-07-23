@@ -3,7 +3,7 @@ import AppShell from "@/Layouts/AppShell.vue";
 import Card from "@/Components/Card.vue";
 import Badge from "@/Components/Badge.vue";
 import EmptyState from "@/Components/EmptyState.vue";
-import { Head } from "@inertiajs/vue3";
+import { Head, Link } from "@inertiajs/vue3";
 
 defineProps({
     bills: {
@@ -54,6 +54,13 @@ const statusTones = {
 
                         <div class="flex items-center gap-4">
                             <Badge :tone="statusTones[bill.status] || 'ocean'">{{ bill.status_label }}</Badge>
+                            <Link
+                                v-if="!bill.payment_id"
+                                :href="route('customer.bills.pay', bill.id)"
+                                class="text-sm text-white bg-gradient-ocean px-3 py-1.5 rounded-lg font-medium shadow-soft hover:shadow-glow transition-all"
+                            >
+                                Pay Now
+                            </Link>
                             <a
                                 :href="route('bills.pdf', bill.id)"
                                 class="text-sm text-ocean-600 dark:text-ocean-400 hover:text-ocean-800 dark:hover:text-ocean-300 font-medium"

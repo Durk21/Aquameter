@@ -189,6 +189,19 @@ return [
 
     /*
     |--------------------------------------------------------------------
+    | Payment Rate Limiting
+    |--------------------------------------------------------------------
+    | Caps how often a customer can initiate a gateway payment attempt
+    | or poll its status — each call can trigger a real outbound
+    | request to M-Pesa/Pesapal, so this isn't just abuse prevention,
+    | it protects against hammering the gateways themselves.
+    */
+
+    "payments_rate_limit" => (int) env("UTILITY_PAYMENTS_RATE_LIMIT", 20),
+    "payments_rate_window_minutes" => (int) env("UTILITY_PAYMENTS_RATE_WINDOW_MINUTES", 1),
+
+    /*
+    |--------------------------------------------------------------------
     | AI Chat Assistant
     |--------------------------------------------------------------------
     | "Ask Aquameter" — the customer-facing chat assistant. Model is
