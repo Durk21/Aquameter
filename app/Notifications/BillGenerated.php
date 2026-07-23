@@ -3,18 +3,22 @@
 namespace App\Notifications;
 
 use App\Models\Bill;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class BillGenerated extends Notification
+class BillGenerated extends Notification implements ShouldQueue
 {
+    use Queueable;
+
     public function __construct(protected Bill $bill)
     {
     }
 
     public function via(object $notifiable): array
     {
-        return ["mail", "database"];
+        return $notifiable->wantsEmailFor("bill_generated") ? ["mail", "database"] : ["database"];
     }
 
     public function toMail(object $notifiable): MailMessage

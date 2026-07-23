@@ -1,0 +1,63 @@
+name: Tests
+
+on: ['push', 'pull_request']
+
+permissions: read-all
+
+jobs:
+  ci:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest]
+        php: [8.2, 8.3, 8.4, 8.5]
+        laravel: [11, 12, 13]
+        pest: [3, 4]
+        dependency-version: [prefer-lowest, prefer-stable]
+        exclude:
+          - laravel: 13
+            php: 8.2
+          - laravel: 13
+            pest: 3
+          - php: 8.2
+            pest: 4
+          - php: 8.5
+            pest: 3
+
+    name: Tests P${{ matrix.php }} - P${{ matrix.pest }} - L${{ matrix.laravel }} - ${{ matrix.os }} - ${{ matrix.dependency-version }}
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+    - name: Cache dependencies
+      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+      with:
+        path: ~/.composer/cache/files
+        key: dependencies-php-${{ matrix.php }}-L${{ matrix.laravel }}-${{ matrix.dependency-version }}-composer-${{ hashFiles('composer.json') }}
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@7c071dfe9dc99bdf297fa79cb49ea005b9fcadbc # v2
+      with:
+        php-version: ${{ matrix.php }}
+        extensions: dom, mbstring, zip
+        coverage: none
+
+    - name: Require Pest Version
+      run: >
+        composer require
+        "pestphp/pest:^${{ matrix.pest }}"
+        --no-interaction --no-update --with-all-dependencies
+
+    - name: Require Laravel Version
+      run: >
+        composer require
+        "laravel/framework:^${{ matrix.laravel }}"
+        --no-interaction --no-update --with-all-dependencies
+
+    - name: Install Composer dependencies
+      run: composer update --${{ matrix.dependency-version }} --no-interaction --prefer-dist
+
+    - name: Integration Tests
+      run: php ./vendor/bin/pest

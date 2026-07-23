@@ -20,6 +20,20 @@ test('reset password link can be requested', function () {
     Notification::assertSentTo($user, ResetPassword::class);
 });
 
+test('requesting a reset link is rate limited', function () {
+    Notification::fake();
+
+    $user = User::factory()->create();
+
+    for ($i = 0; $i < 6; $i++) {
+        $this->post('/forgot-password', ['email' => $user->email]);
+    }
+
+    $response = $this->post('/forgot-password', ['email' => $user->email]);
+
+    $response->assertStatus(429);
+});
+
 test('reset password screen can be rendered', function () {
     Notification::fake();
 

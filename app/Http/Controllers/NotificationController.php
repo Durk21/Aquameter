@@ -11,11 +11,16 @@ class NotificationController extends Controller
 {
     public function index(Request $request): Response
     {
-        $notifications = $request->user()
+        // Named notificationHistory, not notifications — that key is
+        // already used by the globally-shared bell dropdown data in
+        // HandleInertiaRequests, and page props silently win over shared
+        // props of the same name, which would break the bell on this page.
+        $notificationHistory = $request->user()
             ->notifications()
             ->orderByDesc("created_at")
-            ->get()
-            ->map(function ($notification) {
+            ->paginate(20)
+            ->withQueryString()
+            ->through(function ($notification) {
                 return [
                     "id" => $notification->id,
                     "data" => $notification->data,
@@ -25,7 +30,7 @@ class NotificationController extends Controller
             });
 
         return Inertia::render("Notifications/Index", [
-            "notifications" => $notifications,
+            "notificationHistory" => $notificationHistory,
         ]);
     }
 

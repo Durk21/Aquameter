@@ -4,7 +4,27 @@ use App\Models\Account;
 use App\Models\Complaint;
 use App\Models\User;
 use App\Notifications\ComplaintStatusUpdated;
+use App\Notifications\ComplaintSubmitted;
 use Illuminate\Support\Facades\Notification;
+
+it("notifies every admin when a customer submits a complaint", function () {
+    Notification::fake();
+
+    $admin = User::factory()->create();
+    $admin->assignRole(config("roles.admin"));
+
+    $customer = User::factory()->create();
+    $customer->assignRole(config("roles.customer"));
+    $account = Account::factory()->create(["user_id" => $customer->id]);
+
+    $this->actingAs($customer)->post("/customer/complaints", [
+        "subject" => "Bill too high",
+        "description" => "Usage looks wrong.",
+    ]);
+
+    Notification::assertSentTo($admin, ComplaintSubmitted::class);
+    Notification::assertNotSentTo($customer, ComplaintSubmitted::class);
+});
 
 it("notifies the customer when their complaint is resolved", function () {
     Notification::fake();

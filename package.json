@@ -20,6 +20,10 @@
         "vue": "^3.4.0"
     },
     "dependencies": {
-        "puppeteer": "^25.3.0"
+        "@lucide/vue": "^1.25.0",
+        "chart.js": "^4.5.1",
+        "leaflet": "^1.9.4",
+        "puppeteer": "^25.3.0",
+        "vue-chartjs": "^5.3.4"
     }
 }

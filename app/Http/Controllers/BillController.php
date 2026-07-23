@@ -20,7 +20,7 @@ class BillController extends Controller
         $accountIds = Account::where("user_id", $request->user()->id)->pluck("id");
 
         $bills = Bill::whereIn("account_id", $accountIds)
-            ->with("account")
+            ->with(["account", "payment"])
             ->orderByDesc("created_at")
             ->get()
             ->map(function (Bill $bill) {
@@ -33,6 +33,7 @@ class BillController extends Controller
                     "status_label" => $bill->status->label(),
                     "due_date" => $bill->due_date->toDateString(),
                     "created_at" => $bill->created_at->toDateString(),
+                    "payment_id" => $bill->payment?->id,
                 ];
             });
 
@@ -47,20 +48,23 @@ class BillController extends Controller
             abort(403);
         }
 
-        $bills = Bill::with("account.user")
+        $bills = Bill::with(["account.user", "payment"])
             ->orderByDesc("created_at")
-            ->get()
-            ->map(function (Bill $bill) {
+            ->paginate(20)
+            ->withQueryString()
+            ->through(function (Bill $bill) {
                 return [
                     "id" => $bill->id,
                     "customer_name" => $bill->account->user->name,
                     "account_number" => $bill->account->account_number,
+                    "phone" => $bill->account->phone,
                     "units_consumed" => $bill->units_consumed,
                     "amount" => $bill->amount,
                     "status" => $bill->status->value,
                     "status_label" => $bill->status->label(),
                     "due_date" => $bill->due_date->toDateString(),
                     "is_paid" => (bool) $bill->payment,
+                    "payment_id" => $bill->payment?->id,
                 ];
             });
 

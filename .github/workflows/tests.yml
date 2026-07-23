@@ -1,0 +1,69 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_DATABASE: aquameter_testing
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: mbstring, pdo, pdo_mysql, pdo_sqlite, bcmath, intl, zip, gd, dom, curl
+          coverage: none
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Copy environment file
+        run: cp .env.example .env
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Generate application key
+        run: php artisan key:generate
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Install Chrome for bill PDF generation
+        run: npx puppeteer browsers install chrome-headless-shell
+
+      - name: Build frontend assets
+        run: npm run build
+
+      - name: Wait for MySQL
+        run: |
+          until mysqladmin ping -h127.0.0.1 -P3306 -uroot --silent; do
+            sleep 1
+          done
+
+      - name: Run tests
+        env:
+          BROWSERSHOT_NO_SANDBOX: true
+        run: php artisan test

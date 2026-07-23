@@ -30,14 +30,14 @@ const submit = () => {
 </script>
 
 <template>
-    <GuestLayout>
+    <GuestLayout title="Welcome back" subtitle="Log in to your Aquameter account">
         <Head title="Log in" />
 
-        <div v-if="status" class="mb-4 text-sm font-medium text-green-600">
+        <div v-if="status" class="mb-4 text-sm font-medium text-emerald-600 dark:text-emerald-400">
             {{ status }}
         </div>
 
-        <form @submit.prevent="submit">
+        <form @submit.prevent="submit" class="space-y-4">
             <div>
                 <InputLabel for="email" value="Email" />
 
@@ -54,7 +54,7 @@ const submit = () => {
                 <InputError class="mt-2" :message="form.errors.email" />
             </div>
 
-            <div class="mt-4">
+            <div>
                 <InputLabel for="password" value="Password" />
 
                 <TextInput
@@ -69,32 +69,31 @@ const submit = () => {
                 <InputError class="mt-2" :message="form.errors.password" />
             </div>
 
-            <div class="mt-4 block">
+            <div class="flex items-center justify-between">
                 <label class="flex items-center">
                     <Checkbox name="remember" v-model:checked="form.remember" />
-                    <span class="ms-2 text-sm text-gray-600"
-                        >Remember me</span
-                    >
+                    <span class="ms-2 text-sm text-ocean-600 dark:text-neutral-400">Remember me</span>
                 </label>
-            </div>
 
-            <div class="mt-4 flex items-center justify-end">
                 <Link
                     v-if="canResetPassword"
                     :href="route('password.request')"
-                    class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    class="text-sm text-ocean-600 dark:text-neutral-400 hover:text-ocean-800 dark:hover:text-neutral-200 focus:outline-none focus:ring-2 focus:ring-ocean-400 rounded"
                 >
                     Forgot your password?
                 </Link>
-
-                <PrimaryButton
-                    class="ms-4"
-                    :class="{ 'opacity-25': form.processing }"
-                    :disabled="form.processing"
-                >
-                    Log in
-                </PrimaryButton>
             </div>
+
+            <PrimaryButton class="w-full" :disabled="form.processing">
+                Log in
+            </PrimaryButton>
+
+            <p class="text-center text-sm text-ocean-500 dark:text-neutral-400">
+                Don't have an account?
+                <Link :href="route('register')" class="font-medium text-ocean-700 dark:text-ocean-400 hover:text-ocean-900 dark:hover:text-ocean-300">
+                    Register
+                </Link>
+            </p>
         </form>
     </GuestLayout>
 </template>

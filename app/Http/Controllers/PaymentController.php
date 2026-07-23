@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\BillStatus;
 use App\Models\Bill;
 use App\Models\Payment;
+use App\Services\PaymentReceiptPdfService;
+use App\Services\PaymentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class PaymentController extends Controller
 {
@@ -33,6 +34,7 @@ class PaymentController extends Controller
                 "status" => $bill->status->value,
                 "customer_name" => $bill->account->user->name,
                 "account_number" => $bill->account->account_number,
+                "phone" => $bill->account->phone,
             ],
             "paymentMethods" => config("utility.payment_methods"),
         ]);
@@ -59,24 +61,19 @@ class PaymentController extends Controller
             ])->withInput();
         }
 
-        DB::transaction(function () use ($bill, $validated, $request) {
-            Payment::create([
-                "bill_id" => $bill->id,
-                "account_id" => $bill->account_id,
-                "recorded_by" => $request->user()->id,
-                "amount" => $validated["amount"],
-                "method" => $validated["method"],
-                "reference" => $validated["reference"] ?? null,
-                "paid_at" => $validated["paid_at"],
-            ]);
-
-            $bill->status = BillStatus::Paid;
-            $bill->paid_at = $validated["paid_at"];
-            $bill->save();
-        });
+        PaymentService::recordPayment($bill, $validated, $request->user());
 
         return redirect()
             ->route("admin.bills.index")
             ->with("status", "Payment recorded. Bill marked as paid.");
+    }
+
+    public function downloadReceipt(Payment $payment): BinaryFileResponse
+    {
+        Gate::authorize("view", $payment);
+
+        $path = PaymentReceiptPdfService::generate($payment);
+
+        return response()->download($path, "aquameter-receipt-{$payment->id}.pdf")->deleteFileAfterSend();
     }
 }

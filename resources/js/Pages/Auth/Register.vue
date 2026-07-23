@@ -30,10 +30,10 @@ const submit = () => {
 </script>
 
 <template>
-    <GuestLayout>
+    <GuestLayout title="Create your account" subtitle="Set up billing and service for your address">
         <Head title="Register" />
 
-        <form @submit.prevent="submit">
+        <form @submit.prevent="submit" class="space-y-4">
             <div>
                 <InputLabel for="name" value="Name" />
                 <TextInput
@@ -48,7 +48,7 @@ const submit = () => {
                 <InputError class="mt-2" :message="form.errors.name" />
             </div>
 
-            <div class="mt-4">
+            <div>
                 <InputLabel for="email" value="Email" />
                 <TextInput
                     id="email"
@@ -61,7 +61,7 @@ const submit = () => {
                 <InputError class="mt-2" :message="form.errors.email" />
             </div>
 
-            <div class="mt-4">
+            <div>
                 <InputLabel for="address" value="Service Address" />
                 <TextInput
                     id="address"
@@ -74,13 +74,13 @@ const submit = () => {
                 <InputError class="mt-2" :message="form.errors.address" />
             </div>
 
-            <div class="mt-4">
+            <div>
                 <InputLabel for="zone" value="Service Zone" />
                 <select
                     id="zone"
                     v-model="form.zone"
                     required
-                    class="mt-1 block w-full border-ocean-300 focus:border-ocean-500 focus:ring-ocean-500 rounded-md shadow-sm"
+                    class="mt-1 block w-full rounded-lg border-ocean-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-ocean-900 dark:text-neutral-100 focus:border-ocean-500 focus:ring-ocean-500 shadow-sm"
                 >
                     <option value="" disabled>Select your zone</option>
                     <option v-for="z in zones" :key="z" :value="z">{{ z }}</option>
@@ -88,7 +88,7 @@ const submit = () => {
                 <InputError class="mt-2" :message="form.errors.zone" />
             </div>
 
-            <div class="mt-4">
+            <div>
                 <InputLabel for="password" value="Password" />
                 <TextInput
                     id="password"
@@ -101,11 +101,8 @@ const submit = () => {
                 <InputError class="mt-2" :message="form.errors.password" />
             </div>
 
-            <div class="mt-4">
-                <InputLabel
-                    for="password_confirmation"
-                    value="Confirm Password"
-                />
+            <div>
+                <InputLabel for="password_confirmation" value="Confirm Password" />
                 <TextInput
                     id="password_confirmation"
                     type="password"
@@ -114,28 +111,19 @@ const submit = () => {
                     required
                     autocomplete="new-password"
                 />
-                <InputError
-                    class="mt-2"
-                    :message="form.errors.password_confirmation"
-                />
+                <InputError class="mt-2" :message="form.errors.password_confirmation" />
             </div>
 
-            <div class="mt-4 flex items-center justify-end">
-                <Link
-                    :href="route('login')"
-                    class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-ocean-500 focus:ring-offset-2"
-                >
-                    Already registered?
+            <PrimaryButton class="w-full" :disabled="form.processing">
+                Register
+            </PrimaryButton>
+
+            <p class="text-center text-sm text-ocean-500 dark:text-neutral-400">
+                Already registered?
+                <Link :href="route('login')" class="font-medium text-ocean-700 dark:text-ocean-400 hover:text-ocean-900 dark:hover:text-ocean-300">
+                    Log in
                 </Link>
-
-                <PrimaryButton
-                    class="ms-4"
-                    :class="{ 'opacity-25': form.processing }"
-                    :disabled="form.processing"
-                >
-                    Register
-                </PrimaryButton>
-            </div>
+            </p>
         </form>
     </GuestLayout>
 </template>

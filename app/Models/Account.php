@@ -20,6 +20,8 @@ class Account extends Model
         "zone",
         "status",
         "defaulted_at",
+        "phone",
+        "alternate_email",
     ];
 
     protected $casts = [
@@ -41,8 +43,29 @@ class Account extends Model
     {
         return $this->hasMany(Bill::class);
     }
-public function complaints(): HasMany
-{
-    return $this->hasMany(Complaint::class);
-}
+
+    public function complaints(): HasMany
+    {
+        return $this->hasMany(Complaint::class);
+    }
+
+    public function workOrders(): HasMany
+    {
+        return $this->hasMany(WorkOrder::class);
+    }
+
+    public function leakReports(): HasMany
+    {
+        return $this->hasMany(LeakReport::class);
+    }
+
+    public function serviceRequests(): HasMany
+    {
+        return $this->hasMany(ServiceRequest::class);
+    }
+
+    public function maintenanceSchedules(): HasMany
+    {
+        return $this->hasMany(MaintenanceSchedule::class);
+    }
 }
