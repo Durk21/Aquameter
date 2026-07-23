@@ -18,7 +18,7 @@ class PhotoUploadService
     public static function store(Model $photoable, array $files, User $uploader): void
     {
         foreach ($files as $file) {
-            $path = $file->store("photos", "local");
+            $path = $file->store("photos", config("utility.photo_disk"));
 
             Photo::create([
                 "photoable_type" => $photoable::class,

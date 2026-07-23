@@ -150,6 +150,22 @@ return [
 
     /*
     |--------------------------------------------------------------------
+    | Photo Storage Disk
+    |--------------------------------------------------------------------
+    | Which filesystem disk (config/filesystems.php) photos are stored
+    | on and served from. Defaults to the app-wide default disk so a
+    | single FILESYSTEM_DISK=s3 switch moves photos too, but can be set
+    | independently via PHOTO_DISK — e.g. to keep everything else local
+    | while only offloading photos to S3, needed once the app runs on
+    | more than one server (local disk isn't shared between them).
+    | Never point this at the "public" disk — photos are only ever
+    | served through the authorized /photos/{photo} route.
+    */
+
+    "photo_disk" => env("PHOTO_DISK", env("FILESYSTEM_DISK", "local")),
+
+    /*
+    |--------------------------------------------------------------------
     | Escalation Threshold
     |--------------------------------------------------------------------
     | A work order still awaiting technician claim, or a complaint still

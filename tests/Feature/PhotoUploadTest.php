@@ -99,6 +99,29 @@ it("attaches repair-evidence photos when a technician completes a work order", f
     expect($workOrder->fresh()->photos->first()->uploaded_by)->toBe($technician->id);
 });
 
+it("stores and serves photos from whichever disk is configured", function () {
+    Storage::fake("s3");
+    config(["utility.photo_disk" => "s3"]);
+
+    $customer = User::factory()->create();
+    $customer->assignRole(config("roles.customer"));
+    $account = Account::factory()->create(["user_id" => $customer->id]);
+
+    $response = $this->actingAs($customer)->post("/customer/leak-reports", [
+        "severity" => "high",
+        "zone" => $account->zone,
+        "description" => "Burst pipe flooding the yard.",
+        "photos" => [UploadedFile::fake()->image("leak.jpg", 100, 100)->size(500)],
+    ]);
+
+    $response->assertRedirect(route("customer.leak-reports.index"));
+
+    $photo = LeakReport::first()->photos->first();
+    Storage::disk("s3")->assertExists($photo->path);
+
+    $this->actingAs($customer)->get("/photos/{$photo->id}")->assertOk();
+});
+
 it("lets the reporting customer and staff view a photo, but blocks other customers", function () {
     Storage::fake("local");
 

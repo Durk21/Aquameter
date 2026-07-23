@@ -13,7 +13,7 @@ class PhotoController extends Controller
     {
         Gate::authorize("view", $photo);
 
-        return Storage::disk("local")->response($photo->path, $photo->original_filename, [
+        return Storage::disk(config("utility.photo_disk"))->response($photo->path, $photo->original_filename, [
             "Content-Type" => $photo->mime_type,
         ]);
     }
