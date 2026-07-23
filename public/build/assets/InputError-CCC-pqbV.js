@@ -1,0 +1,1 @@
+import{B as e,Y as t,f as n,j as r,v as i,x as a}from"./app-VeaoOcgI.js";var o={class:`text-sm text-red-600 dark:text-red-400`},s={__name:`InputError`,props:{message:{type:String}},setup(s){return(c,l)=>e((r(),a(`div`,null,[i(`p`,o,t(s.message),1)],512)),[[n,s.message]])}};export{s as t};

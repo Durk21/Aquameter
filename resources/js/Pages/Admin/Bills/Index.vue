@@ -4,7 +4,8 @@ import Card from "@/Components/Card.vue";
 import Badge from "@/Components/Badge.vue";
 import EmptyState from "@/Components/EmptyState.vue";
 import Pagination from "@/Components/Pagination.vue";
-import { Head, Link } from "@inertiajs/vue3";
+import { Head, Link, usePage } from "@inertiajs/vue3";
+import { computed } from "vue";
 
 defineProps({
     bills: {
@@ -12,6 +13,8 @@ defineProps({
         required: true,
     },
 });
+
+const isAdmin = computed(() => (usePage().props.auth.roles || []).includes("admin"));
 
 const statusTones = {
     pending: "ocean",
@@ -58,12 +61,13 @@ const statusTones = {
 
                         <div class="w-full flex flex-wrap items-center justify-end gap-4 text-sm">
                             <Link
-                                v-if="!bill.is_paid"
+                                v-if="!bill.is_paid && isAdmin"
                                 :href="route('admin.payments.create', bill.id)"
                                 class="text-ocean-600 dark:text-ocean-400 hover:text-ocean-800 dark:hover:text-ocean-300 font-medium"
                             >
                                 Record Payment
                             </Link>
+                            <span v-else-if="!bill.is_paid" class="text-amber-600 dark:text-amber-400 font-medium">Unpaid</span>
                             <span v-else class="text-emerald-600 dark:text-emerald-400 font-medium">Paid</span>
                             <a
                                 :href="route('bills.pdf', bill.id)"

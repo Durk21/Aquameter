@@ -44,6 +44,8 @@ const navByRole = {
     ],
     management: [
         { label: "Dashboard", route: "management.dashboard", icon: "home" },
+        { label: "Bills", route: "admin.bills.index", icon: "clipboard-list" },
+        { label: "Complaints", route: "admin.complaints.index", icon: "alert-triangle" },
         { label: "Outages", route: "outages.index", icon: "megaphone" },
         { label: "Network Map", route: "map.index", icon: "map-pin" },
         { label: "Activity Log", route: "activity.index", icon: "history" },

@@ -118,11 +118,6 @@ Route::middleware(["auth", "verified", "role:admin"])->prefix("admin")->name("ad
     Route::get("/meters/create", [MeterController::class, "create"])->name("meters.create");
     Route::post("/meters", [MeterController::class, "store"])->name("meters.store");
 
-    Route::get("/complaints", [ComplaintController::class, "adminIndex"])->name("complaints.index");
-    Route::get("/complaints/{complaint}", [ComplaintController::class, "show"])->name("complaints.show");
-    Route::patch("/complaints/{complaint}", [ComplaintController::class, "update"])->name("complaints.update");
-
-    Route::get("/bills", [BillController::class, "adminIndex"])->name("bills.index");
     Route::get("/bills/{bill}/payments/create", [PaymentController::class, "create"])->name("payments.create");
     Route::post("/bills/{bill}/payments", [PaymentController::class, "store"])->name("payments.store");
 
@@ -149,6 +144,18 @@ Route::middleware(["auth", "verified", "role:admin"])->prefix("admin")->name("ad
 
     Route::get("/assistant/messages", [AiChatController::class, "messages"])->name("assistant.messages");
     Route::post("/assistant/messages", [AiChatController::class, "store"])->middleware("throttle:ai-chat")->name("assistant.store");
+});
+
+// Complaint review and bill oversight are shared with management — the
+// policies (ComplaintPolicy::review(), BillPolicy::view()) already grant
+// management the same authority as admin here, so these routes are kept
+// out of the role:admin-only group above.
+Route::middleware(["auth", "verified", "role:admin|management"])->prefix("admin")->name("admin.")->group(function () {
+    Route::get("/complaints", [ComplaintController::class, "adminIndex"])->name("complaints.index");
+    Route::get("/complaints/{complaint}", [ComplaintController::class, "show"])->name("complaints.show");
+    Route::patch("/complaints/{complaint}", [ComplaintController::class, "update"])->name("complaints.update");
+
+    Route::get("/bills", [BillController::class, "adminIndex"])->name("bills.index");
 });
 
 Route::middleware(["auth", "verified", "role:management"])->prefix("management")->name("management.")->group(function () {

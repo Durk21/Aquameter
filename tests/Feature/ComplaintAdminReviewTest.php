@@ -17,6 +17,16 @@ it("allows an admin to view the complaints list", function () {
     $response->assertInertia(fn ($page) => $page->component("Admin/Complaints/Index"));
 });
 
+it("allows a management user to view the complaints list", function () {
+    $management = User::factory()->create();
+    $management->assignRole(config("roles.management"));
+
+    $response = $this->actingAs($management)->get("/admin/complaints");
+
+    $response->assertOk();
+    $response->assertInertia(fn ($page) => $page->component("Admin/Complaints/Index"));
+});
+
 it("prevents a customer from viewing the admin complaints list", function () {
     $customer = User::factory()->create();
     $customer->assignRole(config("roles.customer"));
@@ -24,6 +34,33 @@ it("prevents a customer from viewing the admin complaints list", function () {
     $response = $this->actingAs($customer)->get("/admin/complaints");
 
     $response->assertForbidden();
+});
+
+it("allows a management user to review a complaint", function () {
+    $management = User::factory()->create();
+    $management->assignRole(config("roles.management"));
+
+    $customer = User::factory()->create();
+    $customer->assignRole(config("roles.customer"));
+    $account = Account::factory()->create(["user_id" => $customer->id]);
+
+    $complaint = Complaint::create([
+        "account_id" => $account->id,
+        "submitted_by" => $customer->id,
+        "subject" => "Bill too high",
+        "description" => "Usage looks wrong.",
+        "status" => "submitted",
+    ]);
+
+    $this->actingAs($management)->get("/admin/complaints/{$complaint->id}")->assertOk();
+
+    $response = $this->actingAs($management)->patch("/admin/complaints/{$complaint->id}", [
+        "status" => "resolved",
+        "resolution_notes" => "Verified and adjusted.",
+    ]);
+
+    $response->assertRedirect(route("admin.complaints.index"));
+    $this->assertDatabaseHas("complaints", ["id" => $complaint->id, "status" => "resolved", "resolved_by" => $management->id]);
 });
 
 it("allows an admin to resolve a complaint with notes", function () {
